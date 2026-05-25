@@ -165,8 +165,8 @@ MEDIA/BAJA│ • Editorial notes   │ • Modos de tarjeta      │ • PWA / 
 - [x] Bloque 0 — Cimientos y quick wins ✅ (2026-05-22)
 - [x] Bloque 1 — Fundación de datos ✅ (2026-05-22)
 - [x] Bloque 2 — Flashcards mínimo + SM-2 ✅ (2026-05-22)
-- [ ] Bloque 3 — Progreso real
-- [~] Bloque 4 — CP automático (Codeforces) 🟡 parcial (2026-05-24): núcleo hecho; faltan repaso SM-2 de problemas, sugerir-siguiente y calendario
+- [~] Bloque 3 — Progreso real 🟡 parcial (2026-05-25): **unidades ("libro enorme") ✅ hechas y verificadas**; faltan metas/planes, temporizador y dashboard de ritmo
+- [~] Bloque 4 — CP automático (Codeforces) 🟡 parcial: núcleo **verificado en vivo** (2026-05-25, rating tourist=3428); faltan repaso SM-2 de problemas, sugerir-siguiente y calendario
 - [ ] Bloque 5 — Inglés avanzado
 - [ ] Bloque 6 — Hábitos y consistencia
 - [ ] Bloque 7 — Compartir / plantillas
@@ -214,14 +214,14 @@ Lo que pediste como piso, y la base de retención compartida con CP.
 ---
 
 ### 📈 Bloque 3 — Progreso real *(resuelve tus preguntas centrales)*
-- [ ] **Unidades dentro de recurso** (capítulos/páginas) → resuelve el "libro enorme" · 🟡🟠
+- [x] **Unidades dentro de recurso** (capítulos/páginas, generar N, % de progreso) → resuelve el "libro enorme" · 🟡🟠
 - [ ] **Metas/planes** con recursos ponderados → resuelve "varios libros/videos" · 🟡🟠
 - [ ] **Temporizador Pomodoro** + registro de tiempo · 🟡🟠
 - [ ] **Dashboard de progreso real** (ritmo, ¿voy a tiempo?, heatmap) · 🔴🟠
 
 **Por qué aquí:** es el núcleo del valor que pediste; depende del modelo (B1) y alimenta hábitos (B6).
 
-📝 _Notas del bloque:_ _(pendiente)_
+📝 _Notas del bloque:_ Unidades implementadas con TDD (función `Unit::progressPct` testeada) y verificadas en BD (5 unidades → 2 completadas = 40%, `total_units` sincronizado). Falta metas, temporizador y dashboard de ritmo.
 
 ---
 
@@ -368,6 +368,36 @@ Bloque 8 (escala) ── depende de que el núcleo (1–5) esté sólido
 ---
 
 ### Entradas reales
+
+### [2026-05-25] Bloque 3 (parcial) — Unidades dentro de recurso ("libro enorme")
+- **Estado:** ✅ hecho y verificado (TDD + integración BD + HTTP). Resto del Bloque 3 pendiente.
+- **Qué se hizo:** progreso granular de un recurso vía unidades (capítulos/lecciones). Agregar una a una, **generar N de golpe** (libro grande), marcar pending/in_progress/completed, y % calculado. Acceso desde el botón "Unidades" en cada recurso. `resources.total_units` se mantiene sincronizado.
+- **Archivos creados/modificados:**
+  - `models/Unit.php` — `progressPct()` (puro, testeado), `progress()`, `create/bulkCreate/setStatus/delete`, `syncCount()`, checks de propiedad
+  - `controllers/UnitController.php` — index/store/bulk/setStatus/destroy
+  - `views/resources/units.php` — gestión de unidades + barra de progreso (AJAX)
+  - `index.php` — rutas `?page=units`; `views/resources/row.php` y `views/resources/index.php` — botón "Unidades"
+  - `tests/units_test.php`, `tests/assert.php` — pruebas de `progressPct`
+- **Base de datos:** usa tabla `units` (de v2). Sin cambios de esquema nuevos.
+- **TDD:** test de `progressPct` escrito primero (RED: "Class Unit not found"), luego implementado (GREEN: 6/6).
+- **Cómo probar:** Recursos → botón "Unidades" → Generar N → marcar completadas → ver %. Integración verificada: 5 unidades, 2 completadas = 40%.
+- **Problemas conocidos:** la vista recarga tras cada cambio (recalcula el %); el % aún no se muestra en el listado de recursos (solo en la página de unidades).
+- **Cómo revertir:** borrar `models/Unit.php`, `controllers/UnitController.php`, `views/resources/units.php`, rutas `units` en index.php, botones "Unidades".
+- **Relacionado:** depende de B1; alimenta el futuro dashboard de progreso real.
+
+### [2026-05-25] Bloque 2 (mejora) — SM-2 extraído a función pura + tests
+- **Estado:** ✅ hecho (TDD, 11/11).
+- **Qué se hizo:** se extrajo el algoritmo SM-2 a `Flashcard::sm2()` (estático, puro, sin BD) y `review()` ahora lo usa. Permite testearlo sin BD.
+- **Archivos:** `models/Flashcard.php` (refactor); `tests/sm2_test.php` (nuevo).
+- **TDD:** test escrito primero (RED: "undefined method sm2"), luego implementado (GREEN: 11/11 — primer/segundo/tercer acierto, fallo reinicia, piso ef 1.3, estados mature/mastered).
+- **Cómo probar:** `php tests/sm2_test.php`.
+- **Cómo revertir:** volver a la lógica inline previa en `review()` y borrar el test.
+
+### [2026-05-25] Bloque 4 — Verificación en vivo (Codeforces + migración v3)
+- **Estado:** ✅ núcleo verificado (MySQL/MariaDB arriba).
+- **Qué se hizo:** aplicada `migrations_v3.sql` (columnas cf_* en users). Probada la API de Codeforces (`user.info` de `tourist` → rating 3428) y el modelo (`setCfHandle`, `upsertSolved` con dedup insert→update, `getStats`). Limpieza posterior.
+- **Cómo probar:** página Competitiva → handle (ej. tourist) → Sincronizar.
+- **Problemas conocidos:** `user.status?count=3000` puede tardar con cuentas muy prolíficas (tourist tiene miles).
 
 ### [2026-05-24] Bloque 4 (parcial) — Programación competitiva + API Codeforces
 - **Estado:** 🟡 parcial — núcleo hecho; lint OK. NO probado en vivo (MySQL estaba caído al verificar).

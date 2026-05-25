@@ -50,6 +50,10 @@
                 <i class="fa-solid fa-file-arrow-down"></i>
             </a>
         <?php endif; ?>
+        <a href="<?= BASE_URL ?>?page=units&resource=<?= $r['id'] ?>"
+           class="btn btn-sm btn-outline-secondary me-1" title="Unidades / progreso">
+            <i class="fa-solid fa-list-check"></i>
+        </a>
         <a href="<?= BASE_URL ?>?page=resources&action=edit&id=<?= $r['id'] ?>"
            class="btn btn-sm btn-outline-warning me-1" title="Editar">
             <i class="fa-solid fa-pen"></i>

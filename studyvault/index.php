@@ -27,6 +27,7 @@ $subjects   = new SubjectController();
 $resources  = new ResourceController();
 $flashcards = new FlashcardController();
 $cp         = new CpController();
+$units      = new UnitController();
 
 $action = $_GET['action'] ?? null;
 $post   = $_POST['_action'] ?? null;
@@ -70,6 +71,12 @@ match (true) {
     $page === 'cp' && $method === 'POST' && $post === 'store'        => $cp->store(),
     $page === 'cp' && $method === 'POST' && $post === 'status'       => $cp->setStatus(),
     $page === 'cp' && $method === 'POST' && $post === 'destroy'      => $cp->destroy(),
+
+    $page === 'units' && $method === 'GET'                       => $units->index(),
+    $page === 'units' && $method === 'POST' && $post === 'store'    => $units->store(),
+    $page === 'units' && $method === 'POST' && $post === 'bulk'     => $units->bulk(),
+    $page === 'units' && $method === 'POST' && $post === 'status'   => $units->setStatus(),
+    $page === 'units' && $method === 'POST' && $post === 'destroy'  => $units->destroy(),
 
     default => (function () {
         http_response_code(404);

@@ -84,42 +84,8 @@ class Flashcard {
         if (!$card) {
             return false;
         }
-        $quality = max(0, min(5, $quality));
-
-        $ef       = (float) $card['ease_factor'];
-        $reps     = (int) $card['repetitions'];
-        $interval = (int) $card['interval_days'];
-
-        if ($quality < 3) {
-            // Falló: reinicia el ciclo
-            $reps = 0;
-            $interval = 1;
-        } else {
-            if ($reps === 0) {
-                $interval = 1;
-            } elseif ($reps === 1) {
-                $interval = 6;
-            } else {
-                $interval = (int) round($interval * $ef);
-            }
-            $reps++;
-        }
-
-        // Ajuste del factor de facilidad (fórmula SM-2)
-        $ef = $ef + (0.1 - (5 - $quality) * (0.08 + (5 - $quality) * 0.02));
-        if ($ef < 1.3) {
-            $ef = 1.3;
-        }
-
-        // Estado de madurez
-        $status = 'learning';
-        if ($interval >= 90) {
-            $status = 'mastered';
-        } elseif ($interval >= 21) {
-            $status = 'mature';
-        }
-
-        $dueDate = date('Y-m-d', strtotime("+{$interval} days"));
+        $r = self::sm2((float) $card['ease_factor'], (int) $card['repetitions'], (int) $card['interval_days'], $quality);
+        $dueDate = date('Y-m-d', strtotime("+{$r['interval_days']} days"));
 
         $stmt = $this->db->prepare(
             "UPDATE flashcards
@@ -127,7 +93,31 @@ class Flashcard {
                  due_date = ?, status = ?, last_reviewed_at = NOW()
              WHERE id = ? AND user_id = ?"
         );
-        return $stmt->execute([$ef, $interval, $reps, $dueDate, $status, $id, $userId]);
+        return $stmt->execute([$r['ease_factor'], $r['interval_days'], $r['repetitions'], $dueDate, $r['status'], $id, $userId]);
+    }
+
+    /**
+     * Algoritmo SM-2 (puro, sin BD). Calcula los nuevos parámetros de repaso.
+     * @param int $quality 0-5 (Otra vez<3, Difícil=3, Bien=4, Fácil=5)
+     * @return array{ease_factor:float,repetitions:int,interval_days:int,status:string}
+     */
+    public static function sm2(float $ef, int $reps, int $interval, int $quality): array {
+        $quality = max(0, min(5, $quality));
+        if ($quality < 3) {
+            $reps = 0;
+            $interval = 1;
+        } else {
+            if ($reps === 0)     $interval = 1;
+            elseif ($reps === 1) $interval = 6;
+            else                 $interval = (int) round($interval * $ef);
+            $reps++;
+        }
+        $ef = $ef + (0.1 - (5 - $quality) * (0.08 + (5 - $quality) * 0.02));
+        if ($ef < 1.3) {
+            $ef = 1.3;
+        }
+        $status = $interval >= 90 ? 'mastered' : ($interval >= 21 ? 'mature' : 'learning');
+        return ['ease_factor' => $ef, 'repetitions' => $reps, 'interval_days' => $interval, 'status' => $status];
     }
 
     public function delete(int $id, int $userId): bool {

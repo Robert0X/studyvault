@@ -189,6 +189,7 @@ function doSearch() {
                     <td class="text-end">
                         ${r.url ? `<a href="${r.url}" target="_blank" class="btn btn-sm btn-outline-primary me-1" title="Abrir"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>` : ''}
                         ${r.file_path ? `<a href="${BASE_URL}assets/uploads/${r.file_path}" target="_blank" class="btn btn-sm btn-outline-info me-1" title="Ver archivo"><i class="fa-solid fa-file-arrow-down"></i></a>` : ''}
+                        <a href="${BASE_URL}?page=units&resource=${r.id}" class="btn btn-sm btn-outline-secondary me-1" title="Unidades"><i class="fa-solid fa-list-check"></i></a>
                         <a href="${BASE_URL}?page=resources&action=edit&id=${r.id}" class="btn btn-sm btn-outline-warning me-1" title="Editar"><i class="fa-solid fa-pen"></i></a>
                         <button class="btn btn-sm btn-outline-danger" onclick="deleteResource(${r.id})" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
                     </td>
