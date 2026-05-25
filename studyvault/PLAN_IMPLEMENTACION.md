@@ -165,7 +165,7 @@ MEDIA/BAJA│ • Editorial notes   │ • Modos de tarjeta      │ • PWA / 
 - [x] Bloque 0 — Cimientos y quick wins ✅ (2026-05-22)
 - [x] Bloque 1 — Fundación de datos ✅ (2026-05-22)
 - [x] Bloque 2 — Flashcards mínimo + SM-2 ✅ (2026-05-22)
-- [~] Bloque 3 — Progreso real 🟡 parcial (2026-05-25): **unidades ("libro enorme") ✅ hechas y verificadas**; faltan metas/planes, temporizador y dashboard de ritmo
+- [x] Bloque 3 — Progreso real ✅ (2026-05-25): unidades ("libro enorme"), metas/planes con pace, temporizador Pomodoro + tiempo, y dashboard de progreso real
 - [~] Bloque 4 — CP automático (Codeforces) 🟡 parcial: núcleo **verificado en vivo** (2026-05-25, rating tourist=3428); faltan repaso SM-2 de problemas, sugerir-siguiente y calendario
 - [ ] Bloque 5 — Inglés avanzado
 - [ ] Bloque 6 — Hábitos y consistencia
@@ -215,9 +215,9 @@ Lo que pediste como piso, y la base de retención compartida con CP.
 
 ### 📈 Bloque 3 — Progreso real *(resuelve tus preguntas centrales)*
 - [x] **Unidades dentro de recurso** (capítulos/páginas, generar N, % de progreso) → resuelve el "libro enorme" · 🟡🟠
-- [ ] **Metas/planes** con recursos ponderados → resuelve "varios libros/videos" · 🟡🟠
-- [ ] **Temporizador Pomodoro** + registro de tiempo · 🟡🟠
-- [ ] **Dashboard de progreso real** (ritmo, ¿voy a tiempo?, heatmap) · 🔴🟠
+- [x] **Metas/planes** con recursos ponderados (% ponderado + pace/¿a tiempo?) → resuelve "varios libros/videos" · 🟡🟠
+- [x] **Temporizador Pomodoro** + registro de tiempo (sesiones, racha) · 🟡🟠
+- [x] **Dashboard de progreso real** (tiempo hoy/semana, racha, metas con pace, heatmap en Temporizador) · 🔴🟠
 
 **Por qué aquí:** es el núcleo del valor que pediste; depende del modelo (B1) y alimenta hábitos (B6).
 
@@ -368,6 +368,27 @@ Bloque 8 (escala) ── depende de que el núcleo (1–5) esté sólido
 ---
 
 ### Entradas reales
+
+### [2026-05-25] Bloque 3 (resto) — Metas, Temporizador y Dashboard de progreso real
+- **Estado:** ✅ completado y verificado (TDD + integración BD + HTTP). **Bloque 3 cerrado al 100%.**
+- **Qué se hizo:**
+  - **Metas/planes**: agrupan recursos con **peso**; progreso = promedio ponderado del % de cada recurso (unidades si las hay, si no por estado). **Pace**: compara avance real vs esperado según la fecha objetivo (En camino / Atrasado / vencida) y días restantes. CRUD + agregar/quitar recursos.
+  - **Temporizador Pomodoro 25/5**: cuenta regresiva en JS que al completar **registra la sesión** (minutos reales) vía AJAX. Registro manual. Stats de hoy/semana, **racha** de días, **heatmap** de 84 días y sesiones recientes.
+  - **Dashboard de progreso real**: tarjetas de tiempo (hoy/semana/racha) + resumen de metas con su pace.
+- **Archivos creados/modificados:**
+  - `models/Goal.php` — `weightedProgress()` y `pace()` (puros, testeados), CRUD, `resourcesWithProgress`, `listWithProgress`, attach/detach
+  - `models/StudySession.php` — `create`, `todayMinutes`, `rangeMinutes`, `minutesByDay`, `streak`, `recent`
+  - `controllers/GoalController.php`, `controllers/TimerController.php`
+  - `views/goals/index.php`, `views/goals/show.php`, `views/timer/index.php`
+  - `index.php` (rutas goals/timer + datos del dashboard), `views/dashboard/index.php` (sección progreso real), `views/partials/header.php` (nav Metas + Temporizador)
+  - `tests/goal_test.php` — pruebas de `weightedProgress` y `pace`
+- **Base de datos:** usa `goals`, `goal_resources`, `study_sessions` (de la migración v2). Sin cambios de esquema nuevos.
+- **TDD:** `goal_test` escrito primero (RED: "Class Goal not found"), luego implementado (GREEN: 10/10). Pace y progreso ponderado cubiertos.
+- **Cómo probar:** Metas → crear "Inglés B2 para diciembre" → Ver recursos → agregar recursos con peso → ver % y pace. Temporizador → Iniciar Pomodoro o registrar manual → ver minutos/racha/heatmap. Dashboard muestra ambos.
+- **Verificación:** integración BD (meta 50% "En camino", sesión 25 min, racha 1); HTTP (rutas 302 sin sesión, 403 sin CSRF, sin fatales); 3 suites de tests pasan.
+- **Problemas conocidos:** las vistas recargan tras cambios (recalcular %); el heatmap es de minutos diarios simples (no por intensidad relativa).
+- **Cómo revertir:** borrar `models/Goal.php`, `models/StudySession.php`, los 2 controladores, `views/goals/`, `views/timer/`, rutas goals/timer en index.php, la sección del dashboard y los items de nav; revertir el closure del dashboard en index.php.
+- **Relacionado:** depende de B1 y de las unidades (B3 previo); alimenta B6 (hábitos: racha/heatmap ya sientan la base).
 
 ### [2026-05-25] Bloque 3 (parcial) — Unidades dentro de recurso ("libro enorme")
 - **Estado:** ✅ hecho y verificado (TDD + integración BD + HTTP). Resto del Bloque 3 pendiente.

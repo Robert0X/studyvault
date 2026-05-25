@@ -28,6 +28,8 @@ $resources  = new ResourceController();
 $flashcards = new FlashcardController();
 $cp         = new CpController();
 $units      = new UnitController();
+$goals      = new GoalController();
+$timer      = new TimerController();
 
 $action = $_GET['action'] ?? null;
 $post   = $_POST['_action'] ?? null;
@@ -43,6 +45,12 @@ match (true) {
         $recent        = $resourceModel->getRecent($userId, 6);
         $subjectStats  = $subjectModel->getWithStats($userId, $isAdmin);
         $dueCards      = $cardModel->countDue($userId);
+        $goalModel     = new Goal();
+        $sessionModel  = new StudySession();
+        $goals         = $goalModel->listWithProgress($userId, date('Y-m-d'));
+        $timeToday     = $sessionModel->todayMinutes($userId);
+        $timeWeek      = $sessionModel->rangeMinutes($userId, 7);
+        $streak        = $sessionModel->streak($userId);
         require __DIR__ . '/views/dashboard/index.php';
     })(),
 
@@ -77,6 +85,17 @@ match (true) {
     $page === 'units' && $method === 'POST' && $post === 'bulk'     => $units->bulk(),
     $page === 'units' && $method === 'POST' && $post === 'status'   => $units->setStatus(),
     $page === 'units' && $method === 'POST' && $post === 'destroy'  => $units->destroy(),
+
+    $page === 'goals' && $method === 'GET' && $action === 'show' => $goals->show(),
+    $page === 'goals' && $method === 'GET'                       => $goals->index(),
+    $page === 'goals' && $method === 'POST' && $post === 'store'    => $goals->store(),
+    $page === 'goals' && $method === 'POST' && $post === 'update'   => $goals->update(),
+    $page === 'goals' && $method === 'POST' && $post === 'destroy'  => $goals->destroy(),
+    $page === 'goals' && $method === 'POST' && $post === 'attach'   => $goals->attach(),
+    $page === 'goals' && $method === 'POST' && $post === 'detach'   => $goals->detach(),
+
+    $page === 'timer' && $method === 'GET'                      => $timer->index(),
+    $page === 'timer' && $method === 'POST' && $post === 'log'     => $timer->log(),
 
     default => (function () {
         http_response_code(404);

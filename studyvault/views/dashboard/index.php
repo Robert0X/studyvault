@@ -69,6 +69,44 @@ require __DIR__ . '/../partials/header.php';
     </div>
 </div>
 
+<!-- Progreso real: tiempo de estudio + metas -->
+<div class="row g-3 mb-4">
+    <div class="col-12 col-lg-4">
+        <div class="card border-0 shadow-sm h-100"><div class="card-body">
+            <h6 class="fw-semibold mb-3"><i class="fa-solid fa-clock me-2 text-primary"></i>Tiempo de estudio</h6>
+            <div class="d-flex justify-content-between mb-2"><span class="text-muted">Hoy</span><span class="fw-bold"><?= (int)($timeToday ?? 0) ?> min</span></div>
+            <div class="d-flex justify-content-between mb-2"><span class="text-muted">Últimos 7 días</span><span class="fw-bold"><?= (int)($timeWeek ?? 0) ?> min</span></div>
+            <div class="d-flex justify-content-between"><span class="text-muted">Racha</span><span class="fw-bold"><i class="fa-solid fa-fire text-warning me-1"></i><?= (int)($streak ?? 0) ?> días</span></div>
+            <a href="<?= BASE_URL ?>?page=timer" class="btn btn-sm btn-outline-primary w-100 mt-3"><i class="fa-solid fa-play me-1"></i>Iniciar Pomodoro</a>
+        </div></div>
+    </div>
+    <div class="col-12 col-lg-8">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center pt-3">
+                <h6 class="mb-0"><i class="fa-solid fa-bullseye me-2 text-primary"></i>Tus metas</h6>
+                <a href="<?= BASE_URL ?>?page=goals" class="btn btn-sm btn-outline-primary">Ver todas</a>
+            </div>
+            <div class="card-body">
+                <?php if (empty($goals)): ?>
+                    <p class="text-muted small mb-0">Sin metas aún. <a href="<?= BASE_URL ?>?page=goals">Crea una</a> para medir tu avance hacia un objetivo (ej. "Inglés B2 para diciembre").</p>
+                <?php else: foreach (array_slice($goals, 0, 3) as $g): ?>
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between small mb-1">
+                            <span class="fw-semibold"><?= htmlspecialchars($g['title']) ?></span>
+                            <span><?= (int)$g['pct'] ?>%
+                                <?php if ($g['pace']['has_target']): ?>
+                                    <span class="badge bg-<?= $g['pace']['on_track'] ? 'success' : 'danger' ?> bg-opacity-15 text-<?= $g['pace']['on_track'] ? 'success' : 'danger' ?> ms-1"><?= htmlspecialchars($g['pace']['label']) ?></span>
+                                <?php endif; ?>
+                            </span>
+                        </div>
+                        <div class="progress sv-progress"><div class="progress-bar bg-primary" style="width:<?= (int)$g['pct'] ?>%"></div></div>
+                    </div>
+                <?php endforeach; endif; ?>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row g-4">
     <!-- Progreso por materia -->
     <div class="col-lg-7">

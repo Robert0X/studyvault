@@ -56,6 +56,18 @@
                         <i class="fa-solid fa-trophy me-1"></i>Competitiva
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link <?= ($page ?? '') === 'goals' ? 'active' : '' ?>"
+                       href="<?= BASE_URL ?>?page=goals">
+                        <i class="fa-solid fa-bullseye me-1"></i>Metas
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?= ($page ?? '') === 'timer' ? 'active' : '' ?>"
+                       href="<?= BASE_URL ?>?page=timer">
+                        <i class="fa-solid fa-clock me-1"></i>Temporizador
+                    </a>
+                </li>
             </ul>
             <div class="navbar-nav align-items-center">
                 <li class="nav-item">
@@ -118,6 +130,18 @@
                         <a class="nav-link <?= ($page ?? '') === 'cp' ? 'active' : '' ?>"
                            href="<?= BASE_URL ?>?page=cp">
                             <i class="fa-solid fa-trophy me-2"></i>Competitiva
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?= ($page ?? '') === 'goals' ? 'active' : '' ?>"
+                           href="<?= BASE_URL ?>?page=goals">
+                            <i class="fa-solid fa-bullseye me-2"></i>Metas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?= ($page ?? '') === 'timer' ? 'active' : '' ?>"
+                           href="<?= BASE_URL ?>?page=timer">
+                            <i class="fa-solid fa-clock me-2"></i>Temporizador
                         </a>
                     </li>
                     <li class="nav-item">
