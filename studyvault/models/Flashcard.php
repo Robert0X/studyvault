@@ -131,6 +131,12 @@ class Flashcard {
         return $stmt->execute([$id, $userId]);
     }
 
+    public function reviewedSince(int $userId, int $days): int {
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM flashcards WHERE user_id=? AND last_reviewed_at >= (NOW() - INTERVAL ? DAY)");
+        $stmt->execute([$userId, $days]);
+        return (int) $stmt->fetchColumn();
+    }
+
     public function getStats(int $userId): array {
         $stmt = $this->db->prepare(
             "SELECT

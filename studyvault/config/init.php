@@ -86,6 +86,13 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
 
+// ── 4b. Cabeceras de seguridad ──────────────────────────────────────
+if (!headers_sent()) {
+    header('X-Content-Type-Options: nosniff');
+    header('X-Frame-Options: SAMEORIGIN');
+    header('Referrer-Policy: strict-origin-when-cross-origin');
+}
+
 // ── 5. CSRF ─────────────────────────────────────────────────────────
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));

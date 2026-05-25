@@ -78,6 +78,7 @@ require __DIR__ . '/../partials/header.php';
             <div class="d-flex justify-content-between mb-2"><span class="text-muted">Últimos 7 días</span><span class="fw-bold"><?= (int)($timeWeek ?? 0) ?> min</span></div>
             <div class="d-flex justify-content-between"><span class="text-muted">Racha</span><span class="fw-bold"><i class="fa-solid fa-fire text-warning me-1"></i><?= (int)($streak ?? 0) ?> días</span></div>
             <a href="<?= BASE_URL ?>?page=timer" class="btn btn-sm btn-outline-primary w-100 mt-3"><i class="fa-solid fa-play me-1"></i>Iniciar Pomodoro</a>
+            <a href="<?= BASE_URL ?>?page=report" class="btn btn-sm btn-outline-secondary w-100 mt-2"><i class="fa-solid fa-chart-line me-1"></i>Reporte semanal</a>
         </div></div>
     </div>
     <div class="col-12 col-lg-8">

@@ -168,7 +168,7 @@ MEDIA/BAJA│ • Editorial notes   │ • Modos de tarjeta      │ • PWA / 
 - [x] Bloque 3 — Progreso real ✅ (2026-05-25): unidades ("libro enorme"), metas/planes con pace, temporizador Pomodoro + tiempo, y dashboard de progreso real
 - [x] Bloque 4 — CP automático (Codeforces) ✅ (2026-05-25): sync de rating/problemas, repaso SM-2 de problemas, sugerir-siguiente (i+1), calendario de concursos y biblioteca de plantillas
 - [~] Bloque 5 — Inglés avanzado 🟡 parcial (2026-05-25): modos cloze/producción, Datamuse (colocaciones), estudio por nivel CEFR; falta banco CEFR completo, Tatoeba, modo escucha, import/export Anki
-- [ ] Bloque 6 — Hábitos y consistencia
+- [~] Bloque 6 — Hábitos y consistencia 🟡 (2026-05-25): racha, heatmap y reporte semanal ✅; faltan recordatorios (web push/email) y meta diaria
 - [ ] Bloque 7 — Compartir / plantillas
 - [ ] Bloque 8 — Escala y robustez
 
@@ -253,9 +253,9 @@ Lo que pediste como piso, y la base de retención compartida con CP.
 ---
 
 ### 🔥 Bloque 6 — Hábitos y consistencia *(motivación)*
-- [ ] Rachas (streaks) + meta diaria · 🟡🟡
-- [ ] Calendario / heatmap · 🟡🟡
-- [ ] Reporte semanal · 🟢🟡
+- [x] Rachas (streaks) · 🟡🟡 *(meta diaria pendiente)*
+- [x] Calendario / heatmap · 🟡🟡
+- [x] Reporte semanal · 🟢🟡
 - [ ] Recordatorios (web push / email) · 🔴🟡
 
 **Por qué aquí:** necesita datos de tiempo/actividad (B3) y de estudio (B2/B4) para ser real.
@@ -276,7 +276,7 @@ Lo que pediste como piso, y la base de retención compartida con CP.
 ---
 
 ### 🚀 Bloque 8 — Escala y robustez *(solo si creces / endureces)*
-- [ ] Endurecimiento seguridad: headers, uploads fuera del root, rate limit, recuperación de contraseña
+- [~] Endurecimiento seguridad: **headers (X-Content-Type-Options, X-Frame-Options, Referrer-Policy) ✅**, **bloqueo de ejecución en /uploads (.htaccess) ✅**; faltan rate limit y recuperación de contraseña
 - [ ] Rendimiento: paginación, búsqueda full-text
 - [ ] Plataforma: REST API, PWA/móvil, Docker, i18n
 - [ ] Crecimiento: perfiles públicos, gamificación, social/ranking, modo virtual contest
@@ -368,6 +368,15 @@ Bloque 8 (escala) ── depende de que el núcleo (1–5) esté sólido
 ---
 
 ### Entradas reales
+
+### [2026-05-25] Bloque 6 + 8 (parcial) — Reporte semanal y endurecimiento de seguridad
+- **Estado:** ✅ hecho y verificado.
+- **Qué se hizo:**
+  - **Reporte semanal** (`?page=report`): minutos esta semana vs previa, tarjetas repasadas, problemas resueltos, racha, barra de minutos/día (7d) y estado de metas. Enlace desde el dashboard.
+  - **Seguridad (B8)**: cabeceras `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy` en `config/init.php`; `.htaccess` en `assets/uploads/` que desactiva la ejecución de PHP (defensa ante subidas maliciosas).
+- **Archivos:** `controllers/ReportController.php`, `views/report/index.php` (nuevos); `models/Flashcard.php` (`reviewedSince`), `models/CpProblem.php` (`solvedSince`); `config/init.php` (headers); `assets/uploads/.htaccess`; `index.php` (ruta report); `views/dashboard/index.php` (enlace); `.gitignore` (excepción .htaccess).
+- **Verificación:** cabeceras presentes en respuesta (curl -D), ruta report 302, lint OK, 3 suites de tests pasan, sin fatales.
+- **Cómo revertir:** borrar ReportController/vista report y métodos *Since, quitar bloque de headers en init.php y el .htaccess, la ruta y el enlace.
 
 ### [2026-05-25] Bloque 5 (parcial) — Inglés avanzado: modos de tarjeta, Datamuse y nivel CEFR
 - **Estado:** 🟡 parcial — lo de mayor valor pedagógico hecho y verificado. Falta dataset CEFR completo, Tatoeba, modo escucha, import/export Anki.

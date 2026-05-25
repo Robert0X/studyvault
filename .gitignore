@@ -9,6 +9,7 @@ logs/
 # Archivos subidos por usuarios (no son código)
 studyvault/assets/uploads/*
 !studyvault/assets/uploads/.gitkeep
+!studyvault/assets/uploads/.htaccess
 
 # Sistema operativo
 Thumbs.db

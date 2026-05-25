@@ -1,0 +1,6 @@
+# Impedir la ejecución de código en la carpeta de subidas (defensa ante archivos maliciosos)
+php_flag engine off
+AddType text/plain .php .phtml .phar .pht .php3 .php4 .php5
+<FilesMatch "\.(php|phtml|phar|pht|php[3-7])$">
+    Require all denied
+</FilesMatch>

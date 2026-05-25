@@ -88,6 +88,12 @@ class CpProblem {
         return $stmt->execute([$id, $userId]);
     }
 
+    public function solvedSince(int $userId, int $days): int {
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM cp_problems WHERE user_id=? AND deleted_at IS NULL AND solved_at >= (NOW() - INTERVAL ? DAY)");
+        $stmt->execute([$userId, $days]);
+        return (int) $stmt->fetchColumn();
+    }
+
     public function getStats(int $userId): array {
         $stmt = $this->db->prepare(
             "SELECT

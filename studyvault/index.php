@@ -30,6 +30,7 @@ $cp         = new CpController();
 $units      = new UnitController();
 $goals      = new GoalController();
 $timer      = new TimerController();
+$report     = new ReportController();
 
 $action = $_GET['action'] ?? null;
 $post   = $_POST['_action'] ?? null;
@@ -103,6 +104,8 @@ match (true) {
 
     $page === 'timer' && $method === 'GET'                      => $timer->index(),
     $page === 'timer' && $method === 'POST' && $post === 'log'     => $timer->log(),
+
+    $page === 'report' && $method === 'GET'                     => $report->index(),
 
     default => (function () {
         http_response_code(404);
