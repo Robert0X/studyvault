@@ -19,3 +19,9 @@ desktop.ini
 .vscode/
 .idea/
 *.swp
+
+# Graphify (generado / derivable; se regenera con /graphify)
+**/graphify-out/
+**/.graphify_python
+**/.graphify_*
+**/raw/
