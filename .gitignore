@@ -1,0 +1,21 @@
+# Entorno / secretos — NUNCA subir
+.env
+**/.env
+
+# Logs
+logs/
+*.log
+
+# Archivos subidos por usuarios (no son código)
+studyvault/assets/uploads/*
+!studyvault/assets/uploads/.gitkeep
+
+# Sistema operativo
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Editores
+.vscode/
+.idea/
+*.swp

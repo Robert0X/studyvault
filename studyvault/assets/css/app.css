@@ -1,0 +1,321 @@
+/* ============================
+   StudyVault — App CSS
+   ============================ */
+
+:root {
+    --sv-primary:     #4361ee;
+    --sv-secondary:   #3f37c9;
+    --sv-accent:      #f72585;
+    --sv-bg:          #f4f6fb;
+    --sv-sidebar-w:   220px;
+    --sv-navbar-h:    56px;
+    --sv-card-radius: 12px;
+}
+
+/* Base */
+body {
+    background-color: var(--sv-bg);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: #212529;
+}
+
+/* ============================
+   Auth page
+   ============================ */
+.sv-auth-bg {
+    background: linear-gradient(135deg, var(--sv-secondary) 0%, var(--sv-accent) 100%);
+    min-height: 100vh;
+}
+
+.sv-auth-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 20px;
+    color: white;
+    backdrop-filter: blur(10px);
+}
+
+.sv-auth-card {
+    border-radius: var(--sv-card-radius);
+    background: white;
+}
+
+/* ============================
+   Navbar
+   ============================ */
+.sv-navbar {
+    background: linear-gradient(90deg, var(--sv-secondary), var(--sv-primary));
+    height: var(--sv-navbar-h);
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    box-shadow: 0 2px 12px rgba(63,55,201,.18);
+}
+
+.sv-navbar .nav-link.active,
+.sv-navbar .nav-link:focus {
+    background: rgba(255,255,255,.15);
+    border-radius: 8px;
+}
+
+/* ============================
+   Sidebar
+   ============================ */
+.sv-sidebar {
+    min-height: calc(100vh - var(--sv-navbar-h));
+    background: #fff;
+    border-right: 1px solid #e9ecef;
+    padding: 0;
+}
+
+.sv-sidebar .nav-link {
+    color: #495057;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin: 2px 8px;
+    transition: all .15s;
+    font-size: .9rem;
+}
+
+.sv-sidebar .nav-link:hover {
+    background: var(--sv-bg);
+    color: var(--sv-primary);
+}
+
+.sv-sidebar .nav-link.active {
+    background: rgba(67,97,238,.12);
+    color: var(--sv-primary);
+    font-weight: 600;
+}
+
+/* ============================
+   Main content
+   ============================ */
+.sv-main {
+    padding: 24px 20px;
+    min-height: calc(100vh - var(--sv-navbar-h));
+}
+
+/* ============================
+   Page header
+   ============================ */
+.sv-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+/* ============================
+   Stat cards
+   ============================ */
+.sv-stat-card {
+    border-radius: var(--sv-card-radius);
+    transition: transform .15s, box-shadow .15s;
+}
+
+.sv-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0,0,0,.08) !important;
+}
+
+.sv-stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.sv-stat-number {
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.sv-stat-label {
+    font-size: .75rem;
+    color: #6c757d;
+    margin-top: 2px;
+}
+
+/* ============================
+   Progress bars
+   ============================ */
+.sv-progress {
+    height: 8px;
+    border-radius: 99px;
+    background: #e9ecef;
+}
+
+.sv-progress .progress-bar {
+    border-radius: 99px;
+    transition: width .6s ease;
+}
+
+/* ============================
+   Subject cards
+   ============================ */
+.sv-subject-card {
+    border-radius: var(--sv-card-radius);
+    overflow: hidden;
+    transition: transform .15s, box-shadow .15s;
+}
+
+.sv-subject-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0,0,0,.1) !important;
+}
+
+.sv-subject-banner {
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ============================
+   Resource icon
+   ============================ */
+.sv-resource-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .85rem;
+    flex-shrink: 0;
+}
+
+/* ============================
+   Status select
+   ============================ */
+.status-select {
+    font-size: .8rem;
+    padding: 2px 8px;
+    min-width: 120px;
+}
+
+/* ============================
+   Dictionary widget
+   ============================ */
+.sv-widget {
+    background: var(--sv-bg);
+    border-radius: 10px;
+    padding: 12px;
+    margin: 8px;
+}
+
+.sv-widget-title {
+    font-size: .78rem;
+    font-weight: 600;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-bottom: 8px;
+}
+
+.sv-dict-result {
+    font-size: .8rem;
+}
+
+.sv-dict-word {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--sv-primary);
+}
+
+.sv-dict-phonetic {
+    color: #6c757d;
+    font-style: italic;
+}
+
+.sv-dict-pos {
+    font-size: .72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--sv-accent);
+    letter-spacing: .06em;
+}
+
+.sv-dict-def {
+    margin-left: 8px;
+}
+
+/* ============================
+   Cards generales
+   ============================ */
+.card {
+    border-radius: var(--sv-card-radius);
+}
+
+/* ============================
+   Table
+   ============================ */
+.table > :not(:first-child) { border-top: none; }
+.table td { vertical-align: middle; }
+
+/* ============================
+   Responsive
+   ============================ */
+@media (max-width: 991px) {
+    .sv-main { padding: 16px 12px; }
+    .sv-page-header { flex-direction: column; align-items: flex-start; }
+}
+
+@media (max-width: 575px) {
+    .sv-stat-number { font-size: 1.3rem; }
+    .sv-resource-icon { width: 30px; height: 30px; }
+}
+
+/* ============================
+   Modo oscuro
+   ============================ */
+[data-theme="dark"] {
+    --sv-bg: #0f1115;
+}
+[data-theme="dark"] body { background-color: var(--sv-bg); color: #e4e6eb; }
+[data-theme="dark"] .sv-sidebar,
+[data-theme="dark"] .card,
+[data-theme="dark"] .list-group-item,
+[data-theme="dark"] .modal-content { background-color: #1a1d24; color: #e4e6eb; }
+[data-theme="dark"] .sv-sidebar { border-color: #2a2e37; }
+[data-theme="dark"] .table { color: #e4e6eb; }
+[data-theme="dark"] .table-light th,
+[data-theme="dark"] thead.table-light tr { background-color: #20242d; color: #c8ccd4; }
+[data-theme="dark"] .table-hover tbody tr:hover > * { background-color: #20242d; color: #e4e6eb; }
+[data-theme="dark"] .text-muted { color: #9aa0aa !important; }
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select { background-color: #20242d; border-color: #2a2e37; color: #e4e6eb; }
+[data-theme="dark"] .input-group-text { background-color: #20242d; border-color: #2a2e37; color: #9aa0aa; }
+[data-theme="dark"] .sv-widget { background-color: #20242d; }
+[data-theme="dark"] .sv-progress { background-color: #2a2e37; }
+[data-theme="dark"] .modal-header,
+[data-theme="dark"] .modal-footer { border-color: #2a2e37; }
+[data-theme="dark"] #darkToggle { color: #ffd56b; }
+
+/* ============================
+   Flashcards
+   ============================ */
+.sv-flashcard {
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+    min-height: 240px;
+    display: flex;
+    align-items: center;
+}
+.sv-flashcard:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.1) !important; }
+.sv-card-front { font-size: 1.9rem; font-weight: 700; color: var(--sv-primary); }
+.sv-card-back { font-size: 1.05rem; }
+.sv-card-deck { font-size: .8rem; }
+[data-theme="dark"] .sv-card-front { color: #7e9bff; }
