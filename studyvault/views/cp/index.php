@@ -48,6 +48,54 @@ $rating = $cf['cf_rating'] ?? null;
     </div>
 </div>
 
+<!-- Panel de práctica: repaso, sugerencias, concursos -->
+<div class="row g-3 mb-4">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100"><div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-semibold mb-0"><i class="fa-solid fa-lightbulb me-2 text-warning"></i>Practica (tu nivel +100/+300)</h6>
+                <div class="d-flex gap-2">
+                    <a href="<?= BASE_URL ?>?page=cp&action=review" class="btn btn-sm btn-outline-primary">Repasar<?php if (($dueReview ?? 0) > 0): ?> <span class="badge bg-primary"><?= (int)$dueReview ?></span><?php endif; ?></a>
+                    <a href="<?= BASE_URL ?>?page=cp&action=templates" class="btn btn-sm btn-outline-secondary" title="Plantillas"><i class="fa-solid fa-code"></i></a>
+                </div>
+            </div>
+            <?php if (empty($problemsetCached)): ?>
+                <p class="text-muted small">Sincroniza el catálogo de Codeforces para recibir sugerencias a tu nivel.</p>
+                <button class="btn btn-sm btn-outline-primary" id="catBtn" onclick="syncCatalog()">Sincronizar catálogo</button>
+            <?php elseif (empty($suggestions)): ?>
+                <p class="text-muted small mb-0">Configura tu handle y sincroniza tus envíos para ver sugerencias (usa tu rating).</p>
+            <?php else: ?>
+                <ul class="list-group list-group-flush">
+                    <?php foreach ($suggestions as $s): ?>
+                        <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                            <a href="<?= htmlspecialchars($s['url']) ?>" target="_blank" rel="noopener" class="text-decoration-none small"><?= htmlspecialchars($s['name']) ?></a>
+                            <span class="badge bg-dark"><?= (int)$s['rating'] ?></span>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php endif; ?>
+            <div id="catResult" class="mt-2"></div>
+        </div></div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm h-100"><div class="card-body">
+            <h6 class="fw-semibold mb-3"><i class="fa-regular fa-calendar me-2 text-primary"></i>Próximos concursos</h6>
+            <?php if (empty($contests)): ?>
+                <p class="text-muted small mb-0">No se pudieron cargar (sin conexión a Codeforces).</p>
+            <?php else: ?>
+                <ul class="list-group list-group-flush">
+                    <?php foreach ($contests as $c): ?>
+                        <li class="list-group-item px-0">
+                            <div class="fw-semibold small"><?= htmlspecialchars($c['name']) ?></div>
+                            <div class="text-muted small"><?= date('d/m/Y H:i', (int)($c['startTimeSeconds'] ?? 0)) ?></div>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php endif; ?>
+        </div></div>
+    </div>
+</div>
+
 <!-- Stats -->
 <div class="row g-3 mb-4">
     <?php foreach ([
@@ -125,6 +173,9 @@ $rating = $cf['cf_rating'] ?? null;
                                             </select>
                                         </td>
                                         <td class="text-end">
+                                            <?php if (in_array($p['status'], ['solved', 'upsolved'], true)): ?>
+                                                <button class="btn btn-sm btn-outline-info" onclick="scheduleReview(<?= $p['id'] ?>)" title="Programar repaso"><i class="fa-solid fa-rotate"></i></button>
+                                            <?php endif; ?>
                                             <button class="btn btn-sm btn-outline-danger" onclick="deleteProblem(<?= $p['id'] ?>)"><i class="fa-solid fa-trash"></i></button>
                                         </td>
                                     </tr>
@@ -232,6 +283,16 @@ function saveProblem() {
 }
 
 function setStatus(id, status) { cpPost('status', { id, status }); }
+function scheduleReview(id) { cpPost('schedule_review', { id }).then(d => { if (d.success) alert('Programado para repaso hoy. Ve a "Repasar".'); else alert(d.message); }); }
+function syncCatalog() {
+    const btn = document.getElementById('catBtn');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Descargando...'; }
+    cpPost('sync_problemset', {}).then(d => {
+        document.getElementById('catResult').innerHTML = `<div class="alert alert-${d.success ? 'success' : 'danger'} py-1 px-2 small mb-0">${d.message}</div>`;
+        if (d.success) setTimeout(() => location.reload(), 1200);
+        else if (btn) { btn.disabled = false; btn.textContent = 'Sincronizar catálogo'; }
+    });
+}
 function deleteProblem(id) {
     if (!confirm('¿Eliminar este problema?')) return;
     cpPost('destroy', { id }).then(d => { if (d.success) document.getElementById('prob-' + id)?.remove(); });

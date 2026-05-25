@@ -166,7 +166,7 @@ MEDIA/BAJA│ • Editorial notes   │ • Modos de tarjeta      │ • PWA / 
 - [x] Bloque 1 — Fundación de datos ✅ (2026-05-22)
 - [x] Bloque 2 — Flashcards mínimo + SM-2 ✅ (2026-05-22)
 - [x] Bloque 3 — Progreso real ✅ (2026-05-25): unidades ("libro enorme"), metas/planes con pace, temporizador Pomodoro + tiempo, y dashboard de progreso real
-- [~] Bloque 4 — CP automático (Codeforces) 🟡 parcial: núcleo **verificado en vivo** (2026-05-25, rating tourist=3428); faltan repaso SM-2 de problemas, sugerir-siguiente y calendario
+- [x] Bloque 4 — CP automático (Codeforces) ✅ (2026-05-25): sync de rating/problemas, repaso SM-2 de problemas, sugerir-siguiente (i+1), calendario de concursos y biblioteca de plantillas
 - [ ] Bloque 5 — Inglés avanzado
 - [ ] Bloque 6 — Hábitos y consistencia
 - [ ] Bloque 7 — Compartir / plantillas
@@ -228,10 +228,10 @@ Lo que pediste como piso, y la base de retención compartida con CP.
 ### 🏆 Bloque 4 — CP automático (Codeforces) *(progreso medible sin esfuerzo manual)*
 - [x] **API Codeforces**: rating + resueltos importados automáticamente · 🔴🟠
 - [x] Tracking de problemas (todo/attempted/solved/upsolved) + editorial notes · 🟡🟠
-- [ ] Repaso espaciado de problemas difíciles (reusa SM-2 de B2) · 🟢🟡
-- [~] Análisis de debilidades (resueltos por tag ✅) + sugerir siguiente problema (i+1) ⬜ · 🟡🟡
-- [ ] Biblioteca de plantillas/snippets · 🟡🟡
-- [ ] Calendario de concursos · 🟡⚪
+- [x] Repaso espaciado de problemas difíciles (reusa SM-2 de B2) · 🟢🟡
+- [x] Análisis de debilidades (resueltos por tag) + sugerir siguiente problema (i+1, catálogo cacheado) · 🟡🟡
+- [x] Biblioteca de plantillas/snippets · 🟡🟡
+- [x] Calendario de concursos (contest.list) · 🟡⚪
 
 **Por qué aquí:** muy alto valor para tu enfoque CP, casi independiente, y ya tienes SM-2 listo.
 
@@ -368,6 +368,25 @@ Bloque 8 (escala) ── depende de que el núcleo (1–5) esté sólido
 ---
 
 ### Entradas reales
+
+### [2026-05-25] Bloque 4 (completo) — Repaso CP, sugerir-siguiente, concursos y plantillas
+- **Estado:** ✅ completado y verificado (TDD reusado + integración BD + HTTP). **Bloque 4 cerrado.**
+- **Qué se hizo:**
+  - **Repaso espaciado de problemas**: reutiliza el motor `Flashcard::sm2()` (puro) sobre `cp_problems`. Botón "Repasar" por problema resuelto + página `?page=cp&action=review` con cola y calificación (Otra vez/Difícil/Bien/Fácil).
+  - **Sugerir-siguiente (i+1)**: descarga el catálogo de Codeforces (`problemset.problems`) a `cf_problemset_cache`, filtra no resueltos en `rating+100..+300` → sugiere 6.
+  - **Calendario de concursos**: `contest.list` → próximos 5.
+  - **Plantillas/snippets**: CRUD en `?page=cp&action=templates` (copiar al portapapeles).
+- **Archivos:**
+  - `models/CpProblem.php` (+repaso SM-2, solvedKeys, cacheProblemset, suggestNext); `models/CpTemplate.php` (nuevo)
+  - `controllers/CpController.php` (review/reviewSubmit/scheduleReview/syncProblemset/templates/storeTemplate/destroyTemplate/upcomingContests)
+  - `views/cp/review.php`, `views/cp/templates.php` (nuevos); `views/cp/index.php` (panel de práctica + botón repaso)
+  - `index.php` (rutas cp ampliadas); `migrations_v4.sql` (SM-2 en cp_problems, cp_templates, cf_problemset_cache)
+- **Base de datos:** **ejecutar `migrations_v4.sql`** (ya aplicada en local). 
+- **Reutilización:** el repaso de problemas NO duplica SM-2 — llama a `Flashcard::sm2()` (ya testeado).
+- **Cómo probar:** CP → marcar un problema resuelto con "Repasar" → ir a Repasar → calificar. "Sincronizar catálogo" → ver sugerencias. Plantillas → crear/copiar.
+- **Verificación:** integración BD (repaso: interval 1d, ef 2.6, cola 1→0; plantillas CRUD); HTTP (rutas 302/403, sin fatales); 3 suites de tests pasan.
+- **Problemas conocidos:** `problemset.problems` es grande (~9000); la sincronización del catálogo puede tardar unos segundos.
+- **Cómo revertir:** borrar `CpTemplate.php`, las vistas review/templates, los métodos nuevos de CpProblem/CpController, las rutas nuevas; `DROP TABLE cp_templates, cf_problemset_cache` y quitar columnas SM-2 de cp_problems.
 
 ### [2026-05-25] Bloque 3 (resto) — Metas, Temporizador y Dashboard de progreso real
 - **Estado:** ✅ completado y verificado (TDD + integración BD + HTTP). **Bloque 3 cerrado al 100%.**

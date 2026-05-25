@@ -117,4 +117,84 @@ class CpProblem {
         arsort($counts);
         return array_slice($counts, 0, $limit, true);
     }
+
+    // ── Repaso espaciado de problemas (reusa el motor SM-2 de Flashcard) ──
+    public function scheduleReview(int $id, int $userId): bool {
+        $stmt = $this->db->prepare("UPDATE cp_problems SET due_review = CURRENT_DATE WHERE id=? AND user_id=? AND deleted_at IS NULL");
+        return $stmt->execute([$id, $userId]);
+    }
+
+    public function getDueReview(int $userId): array {
+        $stmt = $this->db->prepare("SELECT * FROM cp_problems WHERE user_id=? AND deleted_at IS NULL AND due_review IS NOT NULL AND due_review <= CURRENT_DATE ORDER BY due_review");
+        $stmt->execute([$userId]);
+        return $stmt->fetchAll();
+    }
+
+    public function countDueReview(int $userId): int {
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM cp_problems WHERE user_id=? AND deleted_at IS NULL AND due_review IS NOT NULL AND due_review <= CURRENT_DATE");
+        $stmt->execute([$userId]);
+        return (int) $stmt->fetchColumn();
+    }
+
+    public function reviewProblem(int $id, int $userId, int $quality): bool {
+        $p = $this->findById($id, $userId);
+        if (!$p) {
+            return false;
+        }
+        $r = Flashcard::sm2((float) $p['ease_factor'], (int) $p['repetitions'], (int) $p['interval_days'], $quality);
+        $due = date('Y-m-d', strtotime("+{$r['interval_days']} days"));
+        $stmt = $this->db->prepare("UPDATE cp_problems SET ease_factor=?, interval_days=?, repetitions=?, due_review=? WHERE id=? AND user_id=?");
+        return $stmt->execute([$r['ease_factor'], $r['interval_days'], $r['repetitions'], $due, $id, $userId]);
+    }
+
+    // ── Sugerir-siguiente (i+1) usando el catálogo cacheado de Codeforces ──
+    public function solvedKeys(int $userId): array {
+        $stmt = $this->db->prepare("SELECT problem_url FROM cp_problems WHERE user_id=? AND deleted_at IS NULL AND status IN ('solved','upsolved')");
+        $stmt->execute([$userId]);
+        $keys = [];
+        foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $u) {
+            if (preg_match('#problem/(\d+)/([A-Za-z0-9]+)#', (string) $u, $m)) {
+                $keys[$m[1] . '/' . $m[2]] = true;
+            }
+        }
+        return $keys;
+    }
+
+    public function problemsetCount(): int {
+        return (int) $this->db->query("SELECT COUNT(*) FROM cf_problemset_cache")->fetchColumn();
+    }
+
+    public function cacheProblemset(array $problems): int {
+        $this->db->exec("DELETE FROM cf_problemset_cache");
+        $stmt = $this->db->prepare("INSERT INTO cf_problemset_cache (contest_id, idx, name, rating, tags) VALUES (?,?,?,?,?)");
+        $this->db->beginTransaction();
+        $n = 0;
+        foreach ($problems as $p) {
+            if (empty($p['contestId']) || empty($p['index'])) {
+                continue;
+            }
+            $stmt->execute([(int) $p['contestId'], $p['index'], $p['name'] ?? '', $p['rating'] ?? null, !empty($p['tags']) ? implode(',', $p['tags']) : null]);
+            $n++;
+        }
+        $this->db->commit();
+        return $n;
+    }
+
+    public function suggestNext(int $userId, int $rating, int $count = 6): array {
+        $stmt = $this->db->prepare("SELECT * FROM cf_problemset_cache WHERE rating BETWEEN ? AND ? ORDER BY RAND() LIMIT 200");
+        $stmt->execute([$rating + 100, $rating + 300]);
+        $solved = $this->solvedKeys($userId);
+        $out = [];
+        foreach ($stmt->fetchAll() as $p) {
+            if (isset($solved[$p['contest_id'] . '/' . $p['idx']])) {
+                continue;
+            }
+            $p['url'] = "https://codeforces.com/problemset/problem/{$p['contest_id']}/{$p['idx']}";
+            $out[] = $p;
+            if (count($out) >= $count) {
+                break;
+            }
+        }
+        return $out;
+    }
 }
