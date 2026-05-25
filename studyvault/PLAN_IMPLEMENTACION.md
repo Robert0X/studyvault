@@ -167,7 +167,7 @@ MEDIA/BAJA│ • Editorial notes   │ • Modos de tarjeta      │ • PWA / 
 - [x] Bloque 2 — Flashcards mínimo + SM-2 ✅ (2026-05-22)
 - [x] Bloque 3 — Progreso real ✅ (2026-05-25): unidades ("libro enorme"), metas/planes con pace, temporizador Pomodoro + tiempo, y dashboard de progreso real
 - [x] Bloque 4 — CP automático (Codeforces) ✅ (2026-05-25): sync de rating/problemas, repaso SM-2 de problemas, sugerir-siguiente (i+1), calendario de concursos y biblioteca de plantillas
-- [ ] Bloque 5 — Inglés avanzado
+- [~] Bloque 5 — Inglés avanzado 🟡 parcial (2026-05-25): modos cloze/producción, Datamuse (colocaciones), estudio por nivel CEFR; falta banco CEFR completo, Tatoeba, modo escucha, import/export Anki
 - [ ] Bloque 6 — Hábitos y consistencia
 - [ ] Bloque 7 — Compartir / plantillas
 - [ ] Bloque 8 — Escala y robustez
@@ -240,9 +240,9 @@ Lo que pediste como piso, y la base de retención compartida con CP.
 ---
 
 ### 🗣️ Bloque 5 — Inglés avanzado (por nivel + usos) *(sobre las flashcards)*
-- [ ] **Banco CEFR** (importar dataset) → estudiar por nivel · 🟡🟠
-- [ ] Enriquecimiento Datamuse + Tatoeba + audio (cacheado) · 🟡🟡
-- [ ] Modos de tarjeta (reconocer/cloze/producción/escucha) · 🟡🟡
+- [~] **Banco CEFR**: estudiar por nivel ✅ (tarjetas etiquetables + filtro A1-C2); falta importar dataset completo · 🟡🟠
+- [~] Enriquecimiento: **Datamuse (colocaciones) ✅** + audio (Free Dictionary) ✅; falta Tatoeba · 🟡🟡
+- [~] Modos de tarjeta: **reconocer/cloze/producción ✅**; falta escucha · 🟡🟡
 - [ ] Cobertura por nivel + stats de retención · 🟢🟡
 - [ ] Import/export Anki, diario de escritura, tracking de listening · 🟡🟡
 
@@ -368,6 +368,22 @@ Bloque 8 (escala) ── depende de que el núcleo (1–5) esté sólido
 ---
 
 ### Entradas reales
+
+### [2026-05-25] Bloque 5 (parcial) — Inglés avanzado: modos de tarjeta, Datamuse y nivel CEFR
+- **Estado:** 🟡 parcial — lo de mayor valor pedagógico hecho y verificado. Falta dataset CEFR completo, Tatoeba, modo escucha, import/export Anki.
+- **Qué se hizo:**
+  - **Modos de estudio** en flashcards: **Clásico**, **Cloze** (oculta la palabra en la frase de ejemplo) y **Producción** (escribir la palabra a partir del significado, con verificación). Atajos de teclado.
+  - **Enriquecimiento Datamuse** (gratis, sin key): al buscar una palabra en el diccionario muestra "Se usa con: ..." (colocaciones) y las **guarda en la tarjeta** — refuerza USO sobre traducción aislada.
+  - **Estudio por nivel CEFR**: nivel opcional al crear tarjeta + menú "Por nivel" (A1–C2) que estudia solo ese nivel.
+- **Archivos:**
+  - `api/datamuse.php` (nuevo, proxy colocaciones); `assets/js/app.js` (colocaciones en el widget + en la tarjeta guardada)
+  - `views/flashcards/study.php` (reescrito con 3 modos); `views/flashcards/index.php` (nivel CEFR + "Por nivel")
+  - `models/Flashcard.php` (`getDue` con filtro de nivel); `controllers/FlashcardController.php` (study por nivel; extra con colocaciones)
+- **Base de datos:** usa `flashcards.cefr_level` (ya existía en v2). Sin cambios de esquema.
+- **Decisión pedagógica:** se priorizó cloze/producción + colocaciones (lo que la evidencia dice que más fija el vocabulario) sobre importar un dataset CEFR enorme (queda pendiente, estructura lista en `word_bank`).
+- **Cómo probar:** Diccionario (barra lateral) → buscar palabra → ver "Se usa con" → Guardar como tarjeta. Flashcards → Estudiar → cambiar a Cloze/Producción. "Por nivel" → B1.
+- **Verificación:** Datamuse en vivo ("make" → sure/up); filtro CEFR (B1 incluye, C1 excluye); lint OK; HTTP (datamuse 200, study 302, sin fatales).
+- **Cómo revertir:** borrar `api/datamuse.php`, revertir study.php al modo único, quitar el filtro de nivel en Flashcard/FlashcardController y los bloques Datamuse en app.js.
 
 ### [2026-05-25] Bloque 4 (completo) — Repaso CP, sugerir-siguiente, concursos y plantillas
 - **Estado:** ✅ completado y verificado (TDD reusado + integración BD + HTTP). **Bloque 4 cerrado.**

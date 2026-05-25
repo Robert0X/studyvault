@@ -56,7 +56,8 @@ let __lastDict = null;
                     word: data.word,
                     back: firstDef.definition || '',
                     example: firstDef.example || '',
-                    phonetic: data.phonetic || ''
+                    phonetic: data.phonetic || '',
+                    collocations: ''
                 };
 
                 let html = `<div class="sv-dict-result mt-1">`;
@@ -73,9 +74,22 @@ let __lastDict = null;
                         if (d.example) html += `<div class="sv-dict-def text-muted fst-italic small">"${d.example}"</div>`;
                     });
                 });
+                html += `<div id="dictColloc"></div>`;
                 html += `<button class="btn btn-sm btn-outline-success w-100 mt-2" onclick="svSaveWord()"><i class="fa-solid fa-plus me-1"></i>Guardar como tarjeta</button>`;
                 html += `</div>`;
                 resultDiv.innerHTML = html;
+
+                // Enriquecer con colocaciones (Datamuse) — usos reales de la palabra
+                fetch(BASE_URL + 'api/datamuse.php?word=' + encodeURIComponent(word))
+                    .then(r => r.json())
+                    .then(dm => {
+                        if (dm.success && dm.collocations && dm.collocations.length) {
+                            __lastDict.collocations = dm.collocations.join(', ');
+                            const el = document.getElementById('dictColloc');
+                            if (el) el.innerHTML = `<div class="sv-dict-def small mt-1"><strong>Se usa con:</strong> ${dm.collocations.slice(0, 8).join(', ')}</div>`;
+                        }
+                    })
+                    .catch(() => {});
             })
             .catch(() => { resultDiv.innerHTML = '<div class="text-danger small mt-1">Error de conexión.</div>'; });
     }
@@ -93,6 +107,7 @@ function svSaveWord() {
     body.append('back', __lastDict.back);
     body.append('example', __lastDict.example);
     body.append('phonetic', __lastDict.phonetic);
+    body.append('collocations', __lastDict.collocations || '');
 
     fetch(BASE_URL + '?page=flashcards', { method: 'POST', body })
         .then(r => r.json())

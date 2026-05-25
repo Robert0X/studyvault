@@ -21,7 +21,8 @@ class FlashcardController {
         requireLogin();
         $userId = (int) $_SESSION['user_id'];
         $deck   = $_GET['deck'] ?? null;
-        $cards  = $this->model->getDue($userId, $deck, 50);
+        $level  = (isset($_GET['level']) && in_array($_GET['level'], ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'], true)) ? $_GET['level'] : null;
+        $cards  = $this->model->getDue($userId, $deck, $level, 50);
         require __DIR__ . '/../views/flashcards/study.php';
     }
 
@@ -62,14 +63,20 @@ class FlashcardController {
             json_response(['success' => false, 'message' => 'Faltan datos de la palabra.']);
         }
 
+        $extra = trim($_POST['phonetic'] ?? '');
+        $coll  = trim($_POST['collocations'] ?? '');
+        if ($coll !== '') {
+            $extra = trim($extra . ' · usa con: ' . $coll);
+        }
         $id = $this->model->create([
-            'user_id' => $userId,
-            'deck'    => 'vocab',
-            'front'   => $word,
-            'back'    => $back,
-            'example' => trim($_POST['example'] ?? '') ?: null,
-            'extra'   => trim($_POST['phonetic'] ?? '') ?: null,
-            'source'  => 'dictionary',
+            'user_id'    => $userId,
+            'deck'       => 'vocab',
+            'front'      => $word,
+            'back'       => $back,
+            'example'    => trim($_POST['example'] ?? '') ?: null,
+            'extra'      => $extra ?: null,
+            'source'     => 'dictionary',
+            'cefr_level' => (isset($_POST['cefr_level']) && in_array($_POST['cefr_level'], ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'], true)) ? $_POST['cefr_level'] : null,
         ]);
         log_activity('flashcard.create_dict', 'flashcard', $id);
         json_response(['success' => true, 'id' => $id, 'message' => "«{$word}» guardada como tarjeta."]);

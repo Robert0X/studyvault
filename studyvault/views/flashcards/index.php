@@ -15,6 +15,16 @@ require __DIR__ . '/../partials/header.php';
                 <span class="badge bg-light text-success ms-1"><?= (int)$stats['due'] ?></span>
             <?php endif; ?>
         </a>
+        <div class="btn-group">
+            <button class="btn btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" title="Estudiar por nivel CEFR">
+                <i class="fa-solid fa-layer-group me-1"></i>Por nivel
+            </button>
+            <ul class="dropdown-menu">
+                <?php foreach (['A1', 'A2', 'B1', 'B2', 'C1', 'C2'] as $lv): ?>
+                    <li><a class="dropdown-item" href="<?= BASE_URL ?>?page=flashcards&action=study&level=<?= $lv ?>">Nivel <?= $lv ?></a></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cardModal">
             <i class="fa-solid fa-plus me-1"></i>Nueva tarjeta
         </button>
@@ -138,6 +148,13 @@ require __DIR__ . '/../partials/header.php';
                     <label class="form-label fw-semibold">Ejemplo de uso</label>
                     <input type="text" id="cardExample" class="form-control" placeholder="Although it was raining, we went out.">
                 </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Nivel CEFR (opcional)</label>
+                    <select id="cardLevel" class="form-select">
+                        <option value="">— Sin nivel —</option>
+                        <option>A1</option><option>A2</option><option>B1</option><option>B2</option><option>C1</option><option>C2</option>
+                    </select>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -165,6 +182,7 @@ function saveCard() {
     body.append('front', front);
     body.append('back', back);
     body.append('example', document.getElementById('cardExample').value.trim());
+    body.append('cefr_level', document.getElementById('cardLevel').value);
 
     fetch(BASE_URL + '?page=flashcards', { method: 'POST', body })
         .then(r => r.json())

@@ -52,13 +52,17 @@ class Flashcard {
     }
 
     /** Tarjetas que tocan repasar hoy o antes. */
-    public function getDue(int $userId, ?string $deck = null, int $limit = 50): array {
+    public function getDue(int $userId, ?string $deck = null, ?string $level = null, int $limit = 50): array {
         $sql = "SELECT * FROM flashcards
                 WHERE user_id = ? AND deleted_at IS NULL AND due_date <= CURRENT_DATE";
         $params = [$userId];
         if ($deck) {
             $sql .= " AND deck = ?";
             $params[] = $deck;
+        }
+        if ($level) {
+            $sql .= " AND cefr_level = ?";
+            $params[] = $level;
         }
         $sql .= " ORDER BY due_date ASC LIMIT " . (int) $limit;
         $stmt = $this->db->prepare($sql);
