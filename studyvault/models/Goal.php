@@ -132,4 +132,71 @@ class Goal {
         $stmt->execute([$userId, $goalId]);
         return $stmt->fetchAll();
     }
+
+    // ── Compartir (B7): plantillas públicas + clonado ──
+    public function setPublic(int $id, int $userId, bool $public): bool {
+        $stmt = $this->db->prepare("UPDATE goals SET is_public = ? WHERE id = ? AND user_id = ?");
+        return $stmt->execute([$public ? 1 : 0, $id, $userId]);
+    }
+
+    public function findPublic(int $id): array|false {
+        $stmt = $this->db->prepare("SELECT * FROM goals WHERE id = ? AND is_public = 1 AND deleted_at IS NULL");
+        $stmt->execute([$id]);
+        return $stmt->fetch();
+    }
+
+    /** Plantillas públicas de otros usuarios. */
+    public function getPublicTemplates(int $excludeUserId, int $limit = 40): array {
+        $stmt = $this->db->prepare(
+            "SELECT g.id, g.title, g.description, g.target_date, u.name AS owner,
+                    (SELECT COUNT(*) FROM goal_resources gr WHERE gr.goal_id = g.id) AS resource_count
+             FROM goals g JOIN users u ON g.user_id = u.id
+             WHERE g.is_public = 1 AND g.deleted_at IS NULL AND g.user_id <> ?
+             ORDER BY g.created_at DESC LIMIT " . (int) $limit
+        );
+        $stmt->execute([$excludeUserId]);
+        return $stmt->fetchAll();
+    }
+
+    /** Clona una plantilla pública en la cuenta del usuario (copia meta + recursos como propios). */
+    public function cloneForUser(int $goalId, int $userId): int|false {
+        $src = $this->findPublic($goalId);
+        if (!$src) {
+            return false;
+        }
+        $this->db->beginTransaction();
+        try {
+            $newGoalId = $this->create($userId, $src['title'], (string) ($src['description'] ?? ''), $src['target_date'] ?: null);
+            $this->db->prepare("UPDATE goals SET cloned_from = ? WHERE id = ?")->execute([$goalId, $newGoalId]);
+
+            // Materia destino "Importado" del usuario (crear si no existe)
+            $q = $this->db->prepare("SELECT id FROM subjects WHERE user_id = ? AND name = 'Importado' AND deleted_at IS NULL LIMIT 1");
+            $q->execute([$userId]);
+            $subjectId = $q->fetchColumn();
+            if (!$subjectId) {
+                $this->db->prepare("INSERT INTO subjects (name, description, icon, color, user_id) VALUES ('Importado','Recursos de plantillas clonadas','fa-download','#64748b',?)")->execute([$userId]);
+                $subjectId = (int) $this->db->lastInsertId();
+            }
+
+            // Copiar recursos del origen como recursos propios (sin archivos)
+            $rs = $this->db->prepare(
+                "SELECT r.title, r.url, r.type, r.description, gr.weight
+                 FROM goal_resources gr JOIN resources r ON gr.resource_id = r.id
+                 WHERE gr.goal_id = ? AND r.deleted_at IS NULL"
+            );
+            $rs->execute([$goalId]);
+            $insR = $this->db->prepare("INSERT INTO resources (title, description, url, type, subject_id, user_id, status) VALUES (?,?,?,?,?,?, 'pending')");
+            $attach = $this->db->prepare("INSERT INTO goal_resources (goal_id, resource_id, weight) VALUES (?,?,?)");
+            foreach ($rs->fetchAll() as $r) {
+                $insR->execute([$r['title'], $r['description'], $r['url'], $r['type'] ?: 'link', $subjectId, $userId]);
+                $attach->execute([$newGoalId, (int) $this->db->lastInsertId(), max(1, (int) $r['weight'])]);
+            }
+            $this->db->commit();
+            return $newGoalId;
+        } catch (Throwable $e) {
+            $this->db->rollBack();
+            error_log('[goal.clone] ' . $e->getMessage());
+            return false;
+        }
+    }
 }

@@ -9,9 +9,12 @@ $statusInfo = ['active' => ['Activa', 'primary'], 'paused' => ['Pausada', 'secon
         <h2 class="mb-0"><i class="fa-solid fa-bullseye me-2"></i>Metas</h2>
         <p class="text-muted mb-0">Planes que agrupan varios recursos y miden tu avance real</p>
     </div>
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#goalModal" onclick="resetGoal()">
-        <i class="fa-solid fa-plus me-1"></i>Nueva meta
-    </button>
+    <div class="d-flex gap-2">
+        <a href="<?= BASE_URL ?>?page=goals&action=browse" class="btn btn-outline-secondary"><i class="fa-solid fa-globe me-1"></i>Plantillas</a>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#goalModal" onclick="resetGoal()">
+            <i class="fa-solid fa-plus me-1"></i>Nueva meta
+        </button>
+    </div>
 </div>
 
 <?php if (empty($goals)): ?>
@@ -54,6 +57,7 @@ $statusInfo = ['active' => ['Activa', 'primary'], 'paused' => ['Pausada', 'secon
                                 <i class="fa-solid fa-diagram-project me-1"></i>Ver recursos
                             </a>
                             <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-<?= $g['is_public'] ? 'success' : 'secondary' ?>" onclick="togglePublic(<?= $g['id'] ?>, <?= $g['is_public'] ? 0 : 1 ?>)" title="<?= $g['is_public'] ? 'Pública (clic = privada)' : 'Privada (clic = publicar)' ?>"><i class="fa-solid fa-<?= $g['is_public'] ? 'globe' : 'lock' ?>"></i></button>
                                 <button class="btn btn-outline-secondary" onclick='editGoal(<?= json_encode($g, JSON_HEX_APOS | JSON_HEX_QUOT) ?>)' title="Editar"><i class="fa-solid fa-pen"></i></button>
                                 <button class="btn btn-outline-danger" onclick="deleteGoal(<?= $g['id'] ?>)" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
                             </div>
@@ -114,6 +118,7 @@ function saveGoal() {
     gPost(id ? 'update' : 'store', f).then(d => { if (d.success) location.reload(); else document.getElementById('goalAlert').innerHTML = `<div class="alert alert-danger py-2">${d.message}</div>`; });
 }
 function deleteGoal(id) { if (!confirm('¿Eliminar esta meta? (no borra los recursos)')) return; gPost('destroy', { id }).then(d => { if (d.success) document.getElementById('goal-' + id)?.remove(); else alert(d.message); }); }
+function togglePublic(id, makePublic) { gPost('toggle_public', { id, public: makePublic }).then(d => { if (d.success) location.reload(); else alert(d.message); }); }
 </script>
 
 <?php require __DIR__ . '/../partials/footer.php'; ?>

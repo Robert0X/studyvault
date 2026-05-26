@@ -169,7 +169,7 @@ MEDIA/BAJA│ • Editorial notes   │ • Modos de tarjeta      │ • PWA / 
 - [x] Bloque 4 — CP automático (Codeforces) ✅ (2026-05-25): sync de rating/problemas, repaso SM-2 de problemas, sugerir-siguiente (i+1), calendario de concursos y biblioteca de plantillas
 - [~] Bloque 5 — Inglés avanzado 🟡 parcial (2026-05-25): modos cloze/producción, Datamuse (colocaciones), estudio por nivel CEFR; falta banco CEFR completo, Tatoeba, modo escucha, import/export Anki
 - [~] Bloque 6 — Hábitos y consistencia 🟡 (2026-05-25): racha, heatmap y reporte semanal ✅; faltan recordatorios (web push/email) y meta diaria
-- [ ] Bloque 7 — Compartir / plantillas
+- [~] Bloque 7 — Compartir / plantillas 🟡 (2026-05-26): plantillas públicas + clonar ✅; faltan onboarding y perfiles públicos
 - [ ] Bloque 8 — Escala y robustez
 
 ---
@@ -265,7 +265,7 @@ Lo que pediste como piso, y la base de retención compartida con CP.
 ---
 
 ### 🤝 Bloque 7 — Compartir / plantillas *(de personal a producto)*
-- [ ] Plantillas de planes públicas + clonar · 🔴🟡
+- [x] Plantillas de planes públicas + clonar (copia recursos como propios) · 🔴🟡
 - [ ] Onboarding con plantillas iniciales · 🟡🟡
 - [ ] Contenido: roadmap Codeforces, plan Inglés A2→B1 · 🟢🟡
 
@@ -368,6 +368,15 @@ Bloque 8 (escala) ── depende de que el núcleo (1–5) esté sólido
 ---
 
 ### Entradas reales
+
+### [2026-05-26] Bloque 7 — Plantillas públicas y clonado de metas
+- **Estado:** ✅ núcleo hecho y verificado (faltan onboarding y perfiles).
+- **Qué se hizo:** una meta se puede **publicar como plantilla** (toggle candado/globo). Página **"Plantillas públicas"** (`?page=goals&action=browse`) lista las de otros usuarios (autor, nº de recursos, fecha). **Clonar** copia la meta y **duplica sus recursos como propios** (subject "Importado"), registrando `cloned_from`.
+- **Archivos:** `models/Goal.php` (`setPublic`, `findPublic`, `getPublicTemplates`, `cloneForUser` con transacción); `controllers/GoalController.php` (`togglePublic`, `browse`, `cloneGoal`); `views/goals/browse.php` (nuevo); `views/goals/index.php` (botón Plantillas + toggle público); `index.php` (rutas).
+- **Base de datos:** usa `goals.is_public`, `goals.cloned_from` (migración v5).
+- **Decisión:** el clon **copia los recursos** del origen como recursos nuevos del usuario (sin archivos), evitando referencias cruzadas a datos de otro usuario.
+- **Verificación:** cross‑usuario (user 2 publica → user 1 ve resource_count=1 → clona → obtiene meta + 1 recurso); rutas 302/403; lint y sin fatales.
+- **Cómo revertir:** quitar los métodos nuevos de Goal/GoalController, `views/goals/browse.php`, el botón/toggle y las rutas.
 
 ### [2026-05-26] Bloque 5 (modo escucha + import) y Bloque 6 (meta diaria)
 - **Estado:** ✅ hecho y verificado.

@@ -97,4 +97,36 @@ class GoalController {
         $ok = $this->model->detachResource($goalId, (int) ($_POST['resource_id'] ?? 0));
         json_response(['success' => $ok, 'message' => $ok ? 'Recurso quitado.' : 'Error.']);
     }
+
+    public function togglePublic(): void {
+        requireLogin();
+        csrf_verify();
+        $userId = (int) $_SESSION['user_id'];
+        $id     = (int) ($_POST['id'] ?? 0);
+        if (!$this->model->findById($id, $userId)) {
+            json_response(['success' => false, 'message' => 'Meta no válida.']);
+        }
+        $public = ($_POST['public'] ?? '0') === '1';
+        $ok = $this->model->setPublic($id, $userId, $public);
+        json_response(['success' => $ok, 'message' => $ok ? ($public ? 'Publicada como plantilla.' : 'Ahora es privada.') : 'Error.']);
+    }
+
+    public function browse(): void {
+        requireLogin();
+        $userId    = (int) $_SESSION['user_id'];
+        $templates = $this->model->getPublicTemplates($userId);
+        require __DIR__ . '/../views/goals/browse.php';
+    }
+
+    public function cloneGoal(): void {
+        requireLogin();
+        csrf_verify();
+        $userId = (int) $_SESSION['user_id'];
+        $newId  = $this->model->cloneForUser((int) ($_POST['id'] ?? 0), $userId);
+        if ($newId === false) {
+            json_response(['success' => false, 'message' => 'No se pudo clonar la plantilla.']);
+        }
+        log_activity('goal.clone', 'goal', $newId);
+        json_response(['success' => true, 'id' => $newId, 'message' => 'Plantilla clonada en tus metas.']);
+    }
 }

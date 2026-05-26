@@ -96,13 +96,16 @@ match (true) {
     $page === 'units' && $method === 'POST' && $post === 'status'   => $units->setStatus(),
     $page === 'units' && $method === 'POST' && $post === 'destroy'  => $units->destroy(),
 
-    $page === 'goals' && $method === 'GET' && $action === 'show' => $goals->show(),
-    $page === 'goals' && $method === 'GET'                       => $goals->index(),
+    $page === 'goals' && $method === 'GET' && $action === 'show'   => $goals->show(),
+    $page === 'goals' && $method === 'GET' && $action === 'browse' => $goals->browse(),
+    $page === 'goals' && $method === 'GET'                         => $goals->index(),
     $page === 'goals' && $method === 'POST' && $post === 'store'    => $goals->store(),
     $page === 'goals' && $method === 'POST' && $post === 'update'   => $goals->update(),
     $page === 'goals' && $method === 'POST' && $post === 'destroy'  => $goals->destroy(),
     $page === 'goals' && $method === 'POST' && $post === 'attach'   => $goals->attach(),
     $page === 'goals' && $method === 'POST' && $post === 'detach'   => $goals->detach(),
+    $page === 'goals' && $method === 'POST' && $post === 'toggle_public' => $goals->togglePublic(),
+    $page === 'goals' && $method === 'POST' && $post === 'clone'         => $goals->cloneGoal(),
 
     $page === 'timer' && $method === 'GET'                      => $timer->index(),
     $page === 'timer' && $method === 'POST' && $post === 'log'       => $timer->log(),
