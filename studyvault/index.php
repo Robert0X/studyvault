@@ -67,7 +67,8 @@ match (true) {
     $page === 'resources' && $method === 'POST' && $post === 'update'  => $resources->update(),
     $page === 'resources' && $method === 'POST' && $post === 'destroy' => $resources->destroy(),
 
-    $page === 'flashcards' && $method === 'GET' && $action === 'study' => $flashcards->study(),
+    $page === 'flashcards' && $method === 'GET' && $action === 'study'  => $flashcards->study(),
+    $page === 'flashcards' && $method === 'GET' && $action === 'export' => $flashcards->exportCsv(),
     $page === 'flashcards' && $method === 'GET'                        => $flashcards->index(),
     $page === 'flashcards' && $method === 'POST' && $post === 'store'      => $flashcards->store(),
     $page === 'flashcards' && $method === 'POST' && $post === 'store_dict' => $flashcards->storeFromDictionary(),

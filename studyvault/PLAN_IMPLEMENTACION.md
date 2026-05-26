@@ -244,7 +244,7 @@ Lo que pediste como piso, y la base de retención compartida con CP.
 - [~] Enriquecimiento: **Datamuse (colocaciones) ✅** + audio (Free Dictionary) ✅; falta Tatoeba · 🟡🟡
 - [~] Modos de tarjeta: **reconocer/cloze/producción ✅**; falta escucha · 🟡🟡
 - [ ] Cobertura por nivel + stats de retención · 🟢🟡
-- [ ] Import/export Anki, diario de escritura, tracking de listening · 🟡🟡
+- [~] **Export CSV/Anki ✅**; faltan import Anki, diario de escritura, tracking de listening · 🟡🟡
 
 **Por qué después de B2:** todo esto se construye sobre las flashcards y el SM-2 ya existentes.
 
@@ -368,6 +368,13 @@ Bloque 8 (escala) ── depende de que el núcleo (1–5) esté sólido
 ---
 
 ### Entradas reales
+
+### [2026-05-25] Bloque 5 — Exportación de flashcards a CSV/Anki
+- **Estado:** ✅ hecho y verificado.
+- **Qué se hizo:** botón "Exportar" en Flashcards → descarga `studyvault_flashcards.csv` (columnas front, back, example, extra, deck, level) compatible con la importación CSV/TSV de Anki. Usa `fputcsv` (escape correcto de comas/comillas).
+- **Archivos:** `controllers/FlashcardController.php` (`exportCsv`), `index.php` (ruta `action=export`), `views/flashcards/index.php` (botón).
+- **Verificación:** CSV real generado (header + filas, escape OK); ruta 302 sin sesión; lint y sin fatales.
+- **Cómo revertir:** quitar `exportCsv`, la ruta y el botón.
 
 ### [2026-05-25] Bloque 6 + 8 (parcial) — Reporte semanal y endurecimiento de seguridad
 - **Estado:** ✅ hecho y verificado.

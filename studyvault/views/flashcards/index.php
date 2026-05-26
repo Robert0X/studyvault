@@ -15,6 +15,9 @@ require __DIR__ . '/../partials/header.php';
                 <span class="badge bg-light text-success ms-1"><?= (int)$stats['due'] ?></span>
             <?php endif; ?>
         </a>
+        <a href="<?= BASE_URL ?>?page=flashcards&action=export" class="btn btn-outline-secondary" title="Exportar a CSV (compatible con Anki)">
+            <i class="fa-solid fa-file-export me-1"></i>Exportar
+        </a>
         <div class="btn-group">
             <button class="btn btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" title="Estudiar por nivel CEFR">
                 <i class="fa-solid fa-layer-group me-1"></i>Por nivel

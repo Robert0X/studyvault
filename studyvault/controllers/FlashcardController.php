@@ -104,4 +104,20 @@ class FlashcardController {
         }
         json_response(['success' => $ok, 'message' => $ok ? 'Tarjeta eliminada.' : 'Error.']);
     }
+
+    /** Exporta las tarjetas a CSV (compatible con Anki: importar como CSV/TSV). */
+    public function exportCsv(): void {
+        requireLogin();
+        $userId = (int) $_SESSION['user_id'];
+        $cards  = $this->model->getByUser($userId);
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="studyvault_flashcards.csv"');
+        $out = fopen('php://output', 'w');
+        fputcsv($out, ['front', 'back', 'example', 'extra', 'deck', 'level']);
+        foreach ($cards as $c) {
+            fputcsv($out, [$c['front'], $c['back'], $c['example'] ?? '', $c['extra'] ?? '', $c['deck'], $c['cefr_level'] ?? '']);
+        }
+        fclose($out);
+        exit;
+    }
 }
