@@ -7,7 +7,7 @@ if (empty($_SESSION['user_id'])) {
     echo json_encode(['success' => false, 'message' => 'No autenticado']);
     exit;
 }
-if (!rate_limit('datamuse', 40, 60)) {
+if (!rate_limit('tatoeba', 20, 60)) {
     echo json_encode(['success' => false, 'message' => 'Demasiadas solicitudes, espera un momento.']);
     exit;
 }
@@ -18,20 +18,22 @@ if ($word === '' || !preg_match('/^[a-zA-Z\s\-]+$/', $word)) {
     exit;
 }
 
-$w = urlencode(strtolower($word));
+$w = urlencode($word);
 $ctx = stream_context_create(['http' => ['timeout' => 8, 'user_agent' => 'StudyVault/1.0']]);
+$resp = @file_get_contents("https://tatoeba.org/en/api_v0/search?from=eng&query={$w}&sort=relevance", false, $ctx);
 
-// rel_bgb = palabras que suelen ir ANTES; rel_bga = palabras que suelen ir DESPUÉS
-$words = [];
-foreach (["rel_bgb=$w", "rel_bga=$w"] as $rel) {
-    $resp = @file_get_contents("https://api.datamuse.com/words?{$rel}&max=6", false, $ctx);
-    if ($resp !== false) {
-        foreach (json_decode($resp, true) ?: [] as $it) {
-            if (!empty($it['word'])) {
-                $words[] = $it['word'];
-            }
+$sentences = [];
+if ($resp !== false) {
+    $j = json_decode($resp, true);
+    foreach (($j['results'] ?? []) as $r) {
+        $t = $r['text'] ?? '';
+        if ($t !== '' && mb_strlen($t) < 120) {
+            $sentences[] = $t;
+        }
+        if (count($sentences) >= 3) {
+            break;
         }
     }
 }
 
-echo json_encode(['success' => true, 'word' => $word, 'collocations' => array_values(array_unique(array_slice($words, 0, 12)))]);
+echo json_encode(['success' => true, 'word' => $word, 'sentences' => $sentences]);

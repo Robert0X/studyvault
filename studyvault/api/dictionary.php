@@ -7,6 +7,10 @@ if (empty($_SESSION['user_id'])) {
     echo json_encode(['success' => false, 'message' => 'No autenticado']);
     exit;
 }
+if (!rate_limit('dict', 40, 60)) {
+    echo json_encode(['success' => false, 'message' => 'Demasiadas solicitudes, espera un momento.']);
+    exit;
+}
 
 $word = trim($_GET['word'] ?? '');
 if ($word === '' || !preg_match('/^[a-zA-Z\s\-]+$/', $word)) {

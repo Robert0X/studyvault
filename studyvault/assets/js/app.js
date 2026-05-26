@@ -75,6 +75,7 @@ let __lastDict = null;
                     });
                 });
                 html += `<div id="dictColloc"></div>`;
+                html += `<div id="dictExamples"></div>`;
                 html += `<button class="btn btn-sm btn-outline-success w-100 mt-2" onclick="svSaveWord()"><i class="fa-solid fa-plus me-1"></i>Guardar como tarjeta</button>`;
                 html += `</div>`;
                 resultDiv.innerHTML = html;
@@ -87,6 +88,18 @@ let __lastDict = null;
                             __lastDict.collocations = dm.collocations.join(', ');
                             const el = document.getElementById('dictColloc');
                             if (el) el.innerHTML = `<div class="sv-dict-def small mt-1"><strong>Se usa con:</strong> ${dm.collocations.slice(0, 8).join(', ')}</div>`;
+                        }
+                    })
+                    .catch(() => {});
+
+                // Frases de ejemplo reales (Tatoeba)
+                fetch(BASE_URL + 'api/tatoeba.php?word=' + encodeURIComponent(word))
+                    .then(r => r.json())
+                    .then(tt => {
+                        if (tt.success && tt.sentences && tt.sentences.length) {
+                            const el = document.getElementById('dictExamples');
+                            if (el) el.innerHTML = '<div class="sv-dict-def small mt-1"><strong>Ejemplos:</strong></div>' +
+                                tt.sentences.map(s => `<div class="sv-dict-def text-muted fst-italic small">"${s}"</div>`).join('');
                         }
                     })
                     .catch(() => {});

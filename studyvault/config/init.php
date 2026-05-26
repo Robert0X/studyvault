@@ -125,6 +125,18 @@ function json_response(array $data, int $code = 200): void {
     exit;
 }
 
+/** Límite de tasa por sesión. Devuelve false si se excede $max llamadas en $seconds. */
+function rate_limit(string $key, int $max, int $seconds): bool {
+    $now = time();
+    $b = $_SESSION['__rl'][$key] ?? ['count' => 0, 'start' => $now];
+    if ($now - $b['start'] >= $seconds) {
+        $b = ['count' => 0, 'start' => $now];
+    }
+    $b['count']++;
+    $_SESSION['__rl'][$key] = $b;
+    return $b['count'] <= $max;
+}
+
 function requireLogin(): void {
     if (empty($_SESSION['user_id'])) {
         header('Location: ' . BASE_URL . '?page=login');

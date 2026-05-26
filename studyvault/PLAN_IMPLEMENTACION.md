@@ -241,7 +241,7 @@ Lo que pediste como piso, y la base de retención compartida con CP.
 
 ### 🗣️ Bloque 5 — Inglés avanzado (por nivel + usos) *(sobre las flashcards)*
 - [~] **Banco CEFR**: estudiar por nivel ✅ (tarjetas etiquetables + filtro A1-C2); falta importar dataset completo · 🟡🟠
-- [~] Enriquecimiento: **Datamuse (colocaciones) ✅** + audio (Free Dictionary) ✅; falta Tatoeba · 🟡🟡
+- [x] Enriquecimiento: **Datamuse (colocaciones) ✅ + Tatoeba (frases reales) ✅ + audio ✅** · 🟡🟡
 - [~] Modos de tarjeta: **reconocer/cloze/producción ✅**; falta escucha · 🟡🟡
 - [ ] Cobertura por nivel + stats de retención · 🟢🟡
 - [~] **Export CSV/Anki ✅**; faltan import Anki, diario de escritura, tracking de listening · 🟡🟡
@@ -276,7 +276,7 @@ Lo que pediste como piso, y la base de retención compartida con CP.
 ---
 
 ### 🚀 Bloque 8 — Escala y robustez *(solo si creces / endureces)*
-- [~] Endurecimiento seguridad: **headers (X-Content-Type-Options, X-Frame-Options, Referrer-Policy) ✅**, **bloqueo de ejecución en /uploads (.htaccess) ✅**; faltan rate limit y recuperación de contraseña
+- [~] Endurecimiento seguridad: **headers ✅**, **bloqueo de ejecución en /uploads ✅**, **rate limit en proxies externos ✅**; falta recuperación de contraseña
 - [ ] Rendimiento: paginación, búsqueda full-text
 - [ ] Plataforma: REST API, PWA/móvil, Docker, i18n
 - [ ] Crecimiento: perfiles públicos, gamificación, social/ranking, modo virtual contest
@@ -368,6 +368,15 @@ Bloque 8 (escala) ── depende de que el núcleo (1–5) esté sólido
 ---
 
 ### Entradas reales
+
+### [2026-05-25] Bloque 5 + 8 — Frases reales (Tatoeba) y rate limiting
+- **Estado:** ✅ hecho y verificado.
+- **Qué se hizo:**
+  - **Tatoeba**: al buscar una palabra, el diccionario muestra **frases de ejemplo reales** ("Ejemplos:") además de la definición y las colocaciones — refuerza el uso en contexto (i+1).
+  - **Rate limiting** por sesión en los proxies a APIs externas (diccionario, datamuse, tatoeba) → helper `rate_limit()` en `init.php` (defensa ante abuso).
+- **Archivos:** `api/tatoeba.php` (nuevo); `config/init.php` (`rate_limit`); `api/dictionary.php` + `api/datamuse.php` (rate limit); `assets/js/app.js` (frases en el widget).
+- **Verificación:** Tatoeba en vivo (frases para "although"); rate limit (20 permitidas / 5 bloqueadas); lint, tests y smoke OK.
+- **Cómo revertir:** borrar `api/tatoeba.php`, las llamadas a `rate_limit` y el bloque Tatoeba en app.js.
 
 ### [2026-05-25] Bloque 5 — Exportación de flashcards a CSV/Anki
 - **Estado:** ✅ hecho y verificado.
