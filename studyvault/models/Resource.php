@@ -8,7 +8,7 @@ class Resource {
         $this->db = Database::getInstance()->getConnection();
     }
 
-    public function getByUser(int $userId, ?int $subjectId = null, ?string $type = null, ?string $status = null, string $search = ''): array {
+    public function getByUser(int $userId, ?int $subjectId = null, ?string $type = null, ?string $status = null, string $search = '', ?int $limit = null, int $offset = 0): array {
         $sql = "SELECT r.*, s.name as subject_name, s.color as subject_color, s.icon as subject_icon
                 FROM resources r
                 JOIN subjects s ON r.subject_id = s.id
@@ -33,9 +33,24 @@ class Resource {
             $params[] = "%$search%";
         }
         $sql .= " ORDER BY r.created_at DESC";
+        if ($limit !== null) {
+            $sql .= " LIMIT " . (int) $limit . " OFFSET " . (int) $offset;
+        }
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll();
+    }
+
+    public function countByUser(int $userId, ?int $subjectId = null, ?string $type = null, ?string $status = null, string $search = ''): int {
+        $sql = "SELECT COUNT(*) FROM resources r WHERE r.user_id = ?";
+        $params = [$userId];
+        if ($subjectId)     { $sql .= " AND r.subject_id = ?"; $params[] = $subjectId; }
+        if ($type)          { $sql .= " AND r.type = ?";       $params[] = $type; }
+        if ($status)        { $sql .= " AND r.status = ?";     $params[] = $status; }
+        if ($search !== '') { $sql .= " AND (r.title LIKE ? OR r.description LIKE ?)"; $params[] = "%$search%"; $params[] = "%$search%"; }
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        return (int) $stmt->fetchColumn();
     }
 
     public function findById(int $id, int $userId): array|false {

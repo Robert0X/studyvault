@@ -3,19 +3,19 @@
    ============================ */
 
 :root {
-    --sv-primary:     #4361ee;
-    --sv-secondary:   #3f37c9;
-    --sv-accent:      #f72585;
-    --sv-bg:          #f4f6fb;
+    --sv-primary:     #4f46e5;
+    --sv-secondary:   #4338ca;
+    --sv-accent:      #f59e0b;
+    --sv-bg:          #f8fafc;
     --sv-sidebar-w:   220px;
     --sv-navbar-h:    56px;
-    --sv-card-radius: 12px;
+    --sv-card-radius: 14px;
 }
 
 /* Base */
 body {
     background-color: var(--sv-bg);
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
     color: #212529;
 }
 
@@ -23,7 +23,7 @@ body {
    Auth page
    ============================ */
 .sv-auth-bg {
-    background: linear-gradient(135deg, var(--sv-secondary) 0%, var(--sv-accent) 100%);
+    background: linear-gradient(135deg, var(--sv-secondary) 0%, var(--sv-primary) 100%);
     min-height: 100vh;
 }
 

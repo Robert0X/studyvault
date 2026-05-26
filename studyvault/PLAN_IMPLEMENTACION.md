@@ -170,7 +170,7 @@ MEDIA/BAJA│ • Editorial notes   │ • Modos de tarjeta      │ • PWA / 
 - [~] Bloque 5 — Inglés avanzado 🟡 parcial (2026-05-25): modos cloze/producción, Datamuse (colocaciones), estudio por nivel CEFR; falta banco CEFR completo, Tatoeba, modo escucha, import/export Anki
 - [~] Bloque 6 — Hábitos y consistencia 🟡 (2026-05-25): racha, heatmap y reporte semanal ✅; faltan recordatorios (web push/email) y meta diaria
 - [~] Bloque 7 — Compartir / plantillas 🟡 (2026-05-26): plantillas públicas + clonar ✅; faltan onboarding y perfiles públicos
-- [ ] Bloque 8 — Escala y robustez
+- [~] Bloque 8 — Escala y robustez 🟡 (headers, rate limit, uploads, **paginación** ✅; faltan password reset, REST API, PWA, Docker, i18n)
 
 ---
 
@@ -277,7 +277,7 @@ Lo que pediste como piso, y la base de retención compartida con CP.
 
 ### 🚀 Bloque 8 — Escala y robustez *(solo si creces / endureces)*
 - [~] Endurecimiento seguridad: **headers ✅**, **bloqueo de ejecución en /uploads ✅**, **rate limit en proxies externos ✅**; falta recuperación de contraseña
-- [ ] Rendimiento: paginación, búsqueda full-text
+- [~] Rendimiento: **paginación de recursos ✅**; falta búsqueda full-text
 - [ ] Plataforma: REST API, PWA/móvil, Docker, i18n
 - [ ] Crecimiento: perfiles públicos, gamificación, social/ranking, modo virtual contest
 
@@ -368,6 +368,16 @@ Bloque 8 (escala) ── depende de que el núcleo (1–5) esté sólido
 ---
 
 ### Entradas reales
+
+### [2026-05-26] B8 paginación + retoque de paleta (rediseño parcial)
+- **Estado:** ✅ hecho (paleta pendiente de revisión visual del usuario).
+- **Qué se hizo:**
+  - **Paginación** de la lista de recursos (10 por página) con `countByUser` + `LIMIT/OFFSET`; **compatible** con la búsqueda AJAX (parámetros `limit/offset` opcionales → `search.php` sin cambios). Usa `?pg=N` (no choca con `?page=`).
+  - **Paleta "Índigo sereno"** (de `PROPUESTAS_DISENO.md`): retune de variables `:root` (primario `#4f46e5`, acento ámbar, fondo slate), gradiente de auth a índigo, radio 14px y tipografía **Inter**. Solo CSS + un `<link>`; reversible.
+- **Archivos:** `models/Resource.php` (`getByUser` con limit/offset + `countByUser`), `controllers/ResourceController.php`, `views/resources/index.php` (paginador + contador total); `assets/css/app.css` (paleta/tokens/fuente), `views/partials/header.php` (Inter). SQL consolidado `ENTREGA/studyvault_completo.sql` regenerado con v5.
+- **Verificación:** paginación (total 5, página ≤10, compat búsqueda OK); rutas 302/200; lint y tests OK; sin fatales.
+- **Nota:** la paleta no se verificó visualmente (no tengo navegador); **revísala** y si no convence, revertir este commit (es solo CSS/header).
+- **Cómo revertir:** restaurar `:root` y la fuente en `app.css`, quitar el `<link>` de Inter; revertir limit/offset en Resource y el paginador en la vista.
 
 ### [2026-05-26] Bloque 7 — Plantillas públicas y clonado de metas
 - **Estado:** ✅ núcleo hecho y verificado (faltan onboarding y perfiles).

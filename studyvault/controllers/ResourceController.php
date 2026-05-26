@@ -19,7 +19,11 @@ class ResourceController {
         $status    = $_GET['status'] ?? null;
         $search    = trim($_GET['q'] ?? '');
 
-        $resources = $this->model->getByUser($userId, $subjectId, $type, $status, $search);
+        $perPage   = 10;
+        $pageNum   = max(1, (int) ($_GET['pg'] ?? 1));
+        $total     = $this->model->countByUser($userId, $subjectId, $type, $status, $search);
+        $pages     = max(1, (int) ceil($total / $perPage));
+        $resources = $this->model->getByUser($userId, $subjectId, $type, $status, $search, $perPage, ($pageNum - 1) * $perPage);
         $subjects  = $this->subjectModel->getByUser($userId);
         require __DIR__ . '/../views/resources/index.php';
     }

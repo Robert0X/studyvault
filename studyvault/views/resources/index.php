@@ -14,7 +14,7 @@ $statusBadge = [
 <div class="sv-page-header">
     <div>
         <h2 class="mb-0"><i class="fa-solid fa-box-archive me-2"></i>Recursos</h2>
-        <p class="text-muted mb-0"><?= count($resources) ?> recursos encontrados</p>
+        <p class="text-muted mb-0"><?= (int)($total ?? count($resources)) ?> recursos · página <?= (int)($pageNum ?? 1) ?> de <?= (int)($pages ?? 1) ?></p>
     </div>
     <a href="<?= BASE_URL ?>?page=resources&action=create" class="btn btn-primary">
         <i class="fa-solid fa-plus me-1"></i>Nuevo recurso
@@ -114,6 +114,15 @@ $statusBadge = [
                         </tbody>
                     </table>
                 </div>
+                <?php if (($pages ?? 1) > 1): $qs = $_GET; ?>
+                    <nav class="p-3"><ul class="pagination pagination-sm justify-content-center mb-0">
+                        <?php for ($i = 1; $i <= $pages; $i++): $qs['pg'] = $i; ?>
+                            <li class="page-item <?= $i == ($pageNum ?? 1) ? 'active' : '' ?>">
+                                <a class="page-link" href="<?= BASE_URL ?>?<?= htmlspecialchars(http_build_query($qs)) ?>"><?= $i ?></a>
+                            </li>
+                        <?php endfor; ?>
+                    </ul></nav>
+                <?php endif; ?>
             <?php endif; ?>
         </div>
     </div>
