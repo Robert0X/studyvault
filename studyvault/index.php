@@ -72,6 +72,7 @@ match (true) {
     $page === 'flashcards' && $method === 'GET'                        => $flashcards->index(),
     $page === 'flashcards' && $method === 'POST' && $post === 'store'      => $flashcards->store(),
     $page === 'flashcards' && $method === 'POST' && $post === 'store_dict' => $flashcards->storeFromDictionary(),
+    $page === 'flashcards' && $method === 'POST' && $post === 'import'     => $flashcards->importCsv(),
     $page === 'flashcards' && $method === 'POST' && $post === 'review'     => $flashcards->review(),
     $page === 'flashcards' && $method === 'POST' && $post === 'destroy'    => $flashcards->destroy(),
 
@@ -104,7 +105,8 @@ match (true) {
     $page === 'goals' && $method === 'POST' && $post === 'detach'   => $goals->detach(),
 
     $page === 'timer' && $method === 'GET'                      => $timer->index(),
-    $page === 'timer' && $method === 'POST' && $post === 'log'     => $timer->log(),
+    $page === 'timer' && $method === 'POST' && $post === 'log'       => $timer->log(),
+    $page === 'timer' && $method === 'POST' && $post === 'set_goal'  => $timer->setDailyGoal(),
 
     $page === 'report' && $method === 'GET'                     => $report->index(),
 

@@ -57,6 +57,7 @@ let __lastDict = null;
                     back: firstDef.definition || '',
                     example: firstDef.example || '',
                     phonetic: data.phonetic || '',
+                    audio: data.audio || '',
                     collocations: ''
                 };
 
@@ -121,6 +122,7 @@ function svSaveWord() {
     body.append('example', __lastDict.example);
     body.append('phonetic', __lastDict.phonetic);
     body.append('collocations', __lastDict.collocations || '');
+    body.append('audio', __lastDict.audio || '');
 
     fetch(BASE_URL + '?page=flashcards', { method: 'POST', body })
         .then(r => r.json())

@@ -242,9 +242,9 @@ Lo que pediste como piso, y la base de retención compartida con CP.
 ### 🗣️ Bloque 5 — Inglés avanzado (por nivel + usos) *(sobre las flashcards)*
 - [~] **Banco CEFR**: estudiar por nivel ✅ (tarjetas etiquetables + filtro A1-C2); falta importar dataset completo · 🟡🟠
 - [x] Enriquecimiento: **Datamuse (colocaciones) ✅ + Tatoeba (frases reales) ✅ + audio ✅** · 🟡🟡
-- [~] Modos de tarjeta: **reconocer/cloze/producción ✅**; falta escucha · 🟡🟡
+- [x] Modos de tarjeta: **reconocer/cloze/producción/escucha ✅** · 🟡🟡
 - [ ] Cobertura por nivel + stats de retención · 🟢🟡
-- [~] **Export CSV/Anki ✅**; faltan import Anki, diario de escritura, tracking de listening · 🟡🟡
+- [~] **Export + Import CSV/Anki ✅**; faltan diario de escritura y banco CEFR completo · 🟡🟡
 
 **Por qué después de B2:** todo esto se construye sobre las flashcards y el SM-2 ya existentes.
 
@@ -253,7 +253,7 @@ Lo que pediste como piso, y la base de retención compartida con CP.
 ---
 
 ### 🔥 Bloque 6 — Hábitos y consistencia *(motivación)*
-- [x] Rachas (streaks) · 🟡🟡 *(meta diaria pendiente)*
+- [x] Rachas (streaks) + **meta diaria ✅** · 🟡🟡
 - [x] Calendario / heatmap · 🟡🟡
 - [x] Reporte semanal · 🟢🟡
 - [ ] Recordatorios (web push / email) · 🔴🟡
@@ -368,6 +368,16 @@ Bloque 8 (escala) ── depende de que el núcleo (1–5) esté sólido
 ---
 
 ### Entradas reales
+
+### [2026-05-26] Bloque 5 (modo escucha + import) y Bloque 6 (meta diaria)
+- **Estado:** ✅ hecho y verificado.
+- **Qué se hizo:**
+  - **Import CSV/Anki**: botón "Importar" en Flashcards → sube un CSV (mismo formato que el export) y crea las tarjetas (`fgetcsv`, valida, tope 1000).
+  - **Modo escucha**: las tarjetas guardadas desde el diccionario almacenan el `audio_url`; en estudio, modo "Escucha" reproduce el audio y pides escribir la palabra.
+  - **Meta diaria** (B6): el usuario fija minutos/día; el Temporizador y su barra muestran avance hoy vs meta (✅ al cumplir).
+- **Archivos:** `migrations_v5.sql` (audio_url, daily_goal_minutes, is_public, cloned_from); `models/Flashcard.php` (create con audio), `models/User.php` (daily goal); `controllers/FlashcardController.php` (`importCsv`), `controllers/TimerController.php` (`setDailyGoal`); `views/flashcards/{index,study}.php`, `views/timer/index.php`, `index.php`, `assets/js/app.js`.
+- **Verificación:** audio en tarjeta OK, meta diaria get=45, CSV importó 2; rutas 403 sin CSRF; lint y tests OK; sin fatales.
+- **Cómo revertir:** quitar `importCsv`/`setDailyGoal`, el modo escucha en study.php, los botones/modales y `migrations_v5.sql`.
 
 ### [2026-05-25] Bloque 5 + 8 — Frases reales (Tatoeba) y rate limiting
 - **Estado:** ✅ hecho y verificado.

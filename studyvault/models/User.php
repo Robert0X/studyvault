@@ -59,4 +59,15 @@ class User {
         $stmt = $this->db->prepare("UPDATE users SET cf_rating = ?, cf_synced_at = NOW() WHERE id = ?");
         return $stmt->execute([$rating, $id]);
     }
+
+    public function setDailyGoal(int $id, int $minutes): bool {
+        $stmt = $this->db->prepare("UPDATE users SET daily_goal_minutes = ? WHERE id = ?");
+        return $stmt->execute([max(0, min(600, $minutes)), $id]);
+    }
+
+    public function getDailyGoal(int $id): int {
+        $stmt = $this->db->prepare("SELECT daily_goal_minutes FROM users WHERE id = ?");
+        $stmt->execute([$id]);
+        return (int) $stmt->fetchColumn();
+    }
 }

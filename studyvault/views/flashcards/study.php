@@ -27,6 +27,7 @@ $level = (isset($_GET['level']) && in_array($_GET['level'], ['A1','A2','B1','B2'
                 <button class="btn btn-outline-primary active" id="mode-clasico" onclick="setMode('clasico')">Clásico</button>
                 <button class="btn btn-outline-primary" id="mode-cloze" onclick="setMode('cloze')">Cloze (hueco)</button>
                 <button class="btn btn-outline-primary" id="mode-produccion" onclick="setMode('produccion')">Producción</button>
+                <button class="btn btn-outline-primary" id="mode-escucha" onclick="setMode('escucha')">Escucha</button>
             </div>
 
             <div class="d-flex justify-content-between align-items-center mb-2 small text-muted">
@@ -63,13 +64,14 @@ $level = (isset($_GET['level']) && in_array($_GET['level'], ['A1','A2','B1','B2'
     const CARDS = <?= json_encode(array_map(fn($c) => [
         'id' => $c['id'], 'deck' => $c['deck'], 'front' => $c['front'],
         'back' => $c['back'], 'example' => $c['example'] ?? '', 'extra' => $c['extra'] ?? '',
+        'audio' => $c['audio_url'] ?? '',
     ], $cards), JSON_HEX_TAG | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_HEX_APOS) ?>;
 
     let idx = 0, flipped = false, mode = 'clasico';
 
     function setMode(m) {
         mode = m;
-        ['clasico', 'cloze', 'produccion'].forEach(x => document.getElementById('mode-' + x).classList.toggle('active', x === m));
+        ['clasico', 'cloze', 'produccion', 'escucha'].forEach(x => document.getElementById('mode-' + x).classList.toggle('active', x === m));
         renderCard();
     }
 
@@ -85,6 +87,12 @@ $level = (isset($_GET['level']) && in_array($_GET['level'], ['A1','A2','B1','B2'
                 return `<div class="fs-5">${blanked}</div><div class="small text-muted mt-2">Completa el hueco</div>`;
             }
             return `<div class="sv-card-front">${c.front}</div><div class="small text-muted mt-2">(sin ejemplo para cloze)</div>`;
+        }
+        if (mode === 'escucha') {
+            const btn = c.audio
+                ? `<button class="btn btn-lg btn-primary" onclick="event.stopPropagation(); new Audio('${c.audio}').play().catch(()=>{})"><i class="fa-solid fa-volume-high me-1"></i>Reproducir</button>`
+                : `<div class="text-muted">(esta tarjeta no tiene audio; usa otro modo)</div>`;
+            return `${btn}<input id="prodInput" class="form-control mt-3 text-center" placeholder="Escribe lo que escuchaste...">`;
         }
         // producción
         return `<div class="h4">${c.back}</div><input id="prodInput" class="form-control mt-3 text-center" placeholder="Escribe la palabra en inglés...">`;
@@ -115,7 +123,7 @@ $level = (isset($_GET['level']) && in_array($_GET['level'], ['A1','A2','B1','B2'
         if (flipped) return;
         flipped = true;
         const c = CARDS[idx];
-        if (mode === 'produccion') {
+        if (mode === 'produccion' || mode === 'escucha') {
             const typed = (document.getElementById('prodInput')?.value || '').trim();
             const ok = typed.toLowerCase() === c.front.toLowerCase();
             document.getElementById('answerLine').innerHTML = ok

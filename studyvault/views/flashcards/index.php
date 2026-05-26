@@ -18,6 +18,9 @@ require __DIR__ . '/../partials/header.php';
         <a href="<?= BASE_URL ?>?page=flashcards&action=export" class="btn btn-outline-secondary" title="Exportar a CSV (compatible con Anki)">
             <i class="fa-solid fa-file-export me-1"></i>Exportar
         </a>
+        <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#importModal" title="Importar CSV">
+            <i class="fa-solid fa-file-import me-1"></i>Importar
+        </button>
         <div class="btn-group">
             <button class="btn btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" title="Estudiar por nivel CEFR">
                 <i class="fa-solid fa-layer-group me-1"></i>Por nivel
@@ -169,7 +172,32 @@ require __DIR__ . '/../partials/header.php';
     </div>
 </div>
 
+<!-- Modal importar CSV -->
+<div class="modal fade" id="importModal" tabindex="-1">
+    <div class="modal-dialog"><div class="modal-content">
+        <div class="modal-header"><h5 class="modal-title">Importar tarjetas (CSV)</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+            <div id="importAlert"></div>
+            <p class="small text-muted">Formato: <code>front,back,example,extra,deck,level</code> (el mismo de "Exportar"; compatible con Anki).</p>
+            <input type="file" id="importFile" class="form-control" accept=".csv,text/csv">
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button class="btn btn-primary" onclick="importCards()"><i class="fa-solid fa-file-import me-1"></i>Importar</button>
+        </div>
+    </div></div>
+</div>
+
 <script>
+function importCards() {
+    const f = document.getElementById('importFile').files[0];
+    if (!f) { document.getElementById('importAlert').innerHTML = '<div class="alert alert-danger py-2">Selecciona un archivo CSV.</div>'; return; }
+    const body = new FormData();
+    body.append('_action', 'import'); body.append('csrf_token', CSRF_TOKEN); body.append('file', f);
+    fetch(BASE_URL + '?page=flashcards', { method: 'POST', body })
+        .then(r => r.json())
+        .then(d => { if (d.success) location.reload(); else document.getElementById('importAlert').innerHTML = `<div class="alert alert-danger py-2">${d.message}</div>`; });
+}
 function saveCard() {
     const front = document.getElementById('cardFront').value.trim();
     const back  = document.getElementById('cardBack').value.trim();

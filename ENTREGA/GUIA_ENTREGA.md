@@ -25,7 +25,7 @@ Proyecto Final/
 ## 2. Instalar la base de datos — OPCIÓN FÁCIL (1 archivo)
 1. Abre **phpMyAdmin** (http://localhost/phpmyadmin).
 2. Pestaña **Importar** → elige `ENTREGA/studyvault_completo.sql` → **Continuar**.
-3. Listo: crea la base `studyvault`, todas las tablas y datos demo.
+3. Listo: crea lapassword base `studyvault`, todas las tablas y datos demo.
 
 > ⚠️ Este archivo **borra y recrea** la base `studyvault` (empieza con `DROP DATABASE`). Úsalo en una instalación limpia. Si ya tienes datos que quieras conservar, usa la Opción manual.
 

@@ -77,6 +77,7 @@ class FlashcardController {
             'extra'      => $extra ?: null,
             'source'     => 'dictionary',
             'cefr_level' => (isset($_POST['cefr_level']) && in_array($_POST['cefr_level'], ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'], true)) ? $_POST['cefr_level'] : null,
+            'audio_url'  => trim($_POST['audio'] ?? '') ?: null,
         ]);
         log_activity('flashcard.create_dict', 'flashcard', $id);
         json_response(['success' => true, 'id' => $id, 'message' => "«{$word}» guardada como tarjeta."]);
@@ -119,5 +120,55 @@ class FlashcardController {
         }
         fclose($out);
         exit;
+    }
+
+    /** Importa tarjetas desde un CSV (mismo formato que la exportación; compatible con Anki). */
+    public function importCsv(): void {
+        requireLogin();
+        csrf_verify();
+        $userId = (int) $_SESSION['user_id'];
+        if (empty($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
+            json_response(['success' => false, 'message' => 'Selecciona un archivo CSV.']);
+        }
+        if ($_FILES['file']['size'] > 2 * 1024 * 1024) {
+            json_response(['success' => false, 'message' => 'Archivo demasiado grande (máx. 2 MB).']);
+        }
+        $fh = fopen($_FILES['file']['tmp_name'], 'r');
+        if (!$fh) {
+            json_response(['success' => false, 'message' => 'No se pudo leer el archivo.']);
+        }
+        $imported = 0;
+        $rowNum = 0;
+        $levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+        while (($cols = fgetcsv($fh)) !== false) {
+            $rowNum++;
+            if ($rowNum === 1 && strtolower(trim($cols[0] ?? '')) === 'front') {
+                continue; // encabezado
+            }
+            $front = trim($cols[0] ?? '');
+            $back  = trim($cols[1] ?? '');
+            if ($front === '' || $back === '') {
+                continue;
+            }
+            $deck  = (isset($cols[4]) && in_array($cols[4], ['vocab', 'cp'], true)) ? $cols[4] : 'vocab';
+            $level = (isset($cols[5]) && in_array(trim($cols[5]), $levels, true)) ? trim($cols[5]) : null;
+            $this->model->create([
+                'user_id'    => $userId,
+                'deck'       => $deck,
+                'front'      => mb_substr($front, 0, 500),
+                'back'       => $back,
+                'example'    => trim($cols[2] ?? '') ?: null,
+                'extra'      => trim($cols[3] ?? '') ?: null,
+                'source'     => 'import',
+                'cefr_level' => $level,
+            ]);
+            $imported++;
+            if ($imported >= 1000) {
+                break; // tope de seguridad
+            }
+        }
+        fclose($fh);
+        log_activity('flashcard.import', null, $imported);
+        json_response(['success' => true, 'message' => "{$imported} tarjetas importadas.", 'imported' => $imported]);
     }
 }

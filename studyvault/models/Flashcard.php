@@ -14,8 +14,8 @@ class Flashcard {
 
     public function create(array $d): int {
         $stmt = $this->db->prepare(
-            "INSERT INTO flashcards (user_id, deck, front, back, example, extra, source, cefr_level, due_date)
-             VALUES (:user_id, :deck, :front, :back, :example, :extra, :source, :cefr_level, CURRENT_DATE)"
+            "INSERT INTO flashcards (user_id, deck, front, back, example, extra, source, cefr_level, audio_url, due_date)
+             VALUES (:user_id, :deck, :front, :back, :example, :extra, :source, :cefr_level, :audio_url, CURRENT_DATE)"
         );
         $stmt->execute([
             ':user_id'   => $d['user_id'],
@@ -26,6 +26,7 @@ class Flashcard {
             ':extra'     => $d['extra'] ?? null,
             ':source'    => $d['source'] ?? 'manual',
             ':cefr_level'=> $d['cefr_level'] ?? null,
+            ':audio_url' => $d['audio_url'] ?? null,
         ]);
         return (int) $this->db->lastInsertId();
     }

@@ -26,6 +26,21 @@ require __DIR__ . '/../partials/header.php';
     </div></div></div>
 </div>
 
+<!-- Meta diaria -->
+<div class="card border-0 shadow-sm mb-4"><div class="card-body">
+    <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+        <span class="fw-semibold"><i class="fa-solid fa-bullseye me-1 text-primary"></i>Meta diaria</span>
+        <div class="input-group input-group-sm" style="max-width:220px">
+            <input type="number" id="goalMin" class="form-control" value="<?= (int)$dailyGoal ?>" min="0" max="600">
+            <span class="input-group-text">min</span>
+            <button class="btn btn-outline-primary" onclick="saveDailyGoal()">Guardar</button>
+        </div>
+    </div>
+    <?php $gpct = $dailyGoal > 0 ? min(100, (int)round($today / $dailyGoal * 100)) : 0; ?>
+    <div class="progress sv-progress"><div class="progress-bar bg-success" style="width:<?= $gpct ?>%"></div></div>
+    <div class="small text-muted mt-1"><?= (int)$today ?> / <?= $dailyGoal > 0 ? (int)$dailyGoal . ' min hoy' : 'sin meta definida' ?><?= $dailyGoal > 0 && $today >= $dailyGoal ? ' · ✅ ¡cumplida!' : '' ?></div>
+</div></div>
+
 <div class="row g-4">
     <!-- Pomodoro -->
     <div class="col-lg-5">
@@ -121,6 +136,11 @@ function logSession(minutes, technique) {
     });
 }
 function logManual() { const m = parseInt(document.getElementById('manualMin').value); if (!m || m < 1) { alert('Minutos inválidos'); return; } logSession(m, 'read'); setTimeout(() => location.reload(), 600); }
+function saveDailyGoal() {
+    const m = parseInt(document.getElementById('goalMin').value) || 0;
+    const b = new FormData(); b.append('_action', 'set_goal'); b.append('csrf_token', CSRF_TOKEN); b.append('minutes', m);
+    fetch(BASE_URL + '?page=timer', { method: 'POST', body: b }).then(r => r.json()).then(d => { if (d.success) location.reload(); });
+}
 pomoRender();
 </script>
 
