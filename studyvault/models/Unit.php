@@ -63,8 +63,9 @@ class Unit {
             "INSERT INTO units (resource_id, title, order_index, page_from, page_to) VALUES (?, ?, ?, ?, ?)"
         );
         $stmt->execute([$resourceId, $title, $order, $pageFrom, $pageTo]);
+        $id = (int) $this->db->lastInsertId(); // capturar ANTES de syncCount: en MySQL un UPDATE posterior resetea lastInsertId() a 0
         $this->syncCount($resourceId);
-        return (int) $this->db->lastInsertId();
+        return $id;
     }
 
     /** Genera N unidades (p. ej. "Capítulo 1..N") de una vez. */
