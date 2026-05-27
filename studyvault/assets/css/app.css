@@ -280,6 +280,8 @@ body {
    ============================ */
 .table > :not(:first-child) { border-top: none; }
 .table td { vertical-align: middle; }
+/* Columnas de acciones: botones en una sola línea (la tabla hace scroll horizontal si no caben) */
+.table td.text-end { white-space: nowrap; }
 
 /* ============================
    Responsive
