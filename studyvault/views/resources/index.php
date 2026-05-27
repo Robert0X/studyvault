@@ -152,7 +152,7 @@ function doSearch() {
 
             const container = document.getElementById('resourcesContainer');
 
-            if (data.data.length === 0) {
+            if (data.count === 0) {
                 container.innerHTML = `
                     <div class="text-center py-5 text-muted">
                         <i class="fa-solid fa-magnifying-glass fa-3x mb-3 opacity-50"></i>
@@ -162,48 +162,7 @@ function doSearch() {
                 return;
             }
 
-            const typeIcons = { link: 'fa-link', pdf: 'fa-file-pdf', note: 'fa-sticky-note', video: 'fa-video' };
-            const rows = data.data.map(r => `
-                <tr id="row-${r.id}">
-                    <td>
-                        <div class="d-flex align-items-center gap-2">
-                            <div class="sv-resource-icon" style="background-color:${r.subject_color}20; color:${r.subject_color}">
-                                <i class="fa-solid ${r.type_icon}"></i>
-                            </div>
-                            <div>
-                                <div class="fw-semibold">${r.title}</div>
-                                ${r.description ? `<small class="text-muted">${r.description.substring(0, 60)}${r.description.length > 60 ? '…' : ''}</small>` : ''}
-                            </div>
-                        </div>
-                    </td>
-                    <td class="d-none d-md-table-cell">
-                        <span class="badge rounded-pill" style="background-color:${r.subject_color}20; color:${r.subject_color}; border:1px solid ${r.subject_color}40">
-                            <i class="fa-solid ${r.subject_icon} me-1"></i>${r.subject_name}
-                        </span>
-                    </td>
-                    <td class="d-none d-sm-table-cell">
-                        <span class="badge bg-secondary bg-opacity-15 text-secondary">
-                            <i class="fa-solid ${r.type_icon} me-1"></i>${r.type}
-                        </span>
-                    </td>
-                    <td>
-                        <select class="form-select form-select-sm status-select w-auto"
-                                onchange="changeStatus(${r.id}, this.value)"
-                                style="border-color: var(--bs-${r.status_class})">
-                            <option value="pending"     ${r.status === 'pending'     ? 'selected' : ''}>○ Pendiente</option>
-                            <option value="in_progress" ${r.status === 'in_progress' ? 'selected' : ''}>⟳ En progreso</option>
-                            <option value="completed"   ${r.status === 'completed'   ? 'selected' : ''}>✓ Completado</option>
-                        </select>
-                    </td>
-                    <td class="text-end">
-                        ${r.url ? `<a href="${r.url}" target="_blank" class="btn btn-sm btn-outline-primary me-1" title="Abrir"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>` : ''}
-                        ${r.file_path ? `<a href="${BASE_URL}assets/uploads/${r.file_path}" target="_blank" class="btn btn-sm btn-outline-info me-1" title="Ver archivo"><i class="fa-solid fa-file-arrow-down"></i></a>` : ''}
-                        <a href="${BASE_URL}?page=units&resource=${r.id}" class="btn btn-sm btn-outline-secondary me-1" title="Unidades"><i class="fa-solid fa-list-check"></i></a>
-                        <a href="${BASE_URL}?page=resources&action=edit&id=${r.id}" class="btn btn-sm btn-outline-warning me-1" title="Editar"><i class="fa-solid fa-pen"></i></a>
-                        <button class="btn btn-sm btn-outline-danger" onclick="deleteResource(${r.id})" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
-                    </td>
-                </tr>`).join('');
-
+            // Las filas las renderiza el servidor con la MISMA plantilla (row.php) → una sola fuente de verdad.
             container.innerHTML = `
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
@@ -216,7 +175,7 @@ function doSearch() {
                                 <th class="text-end">Acciones</th>
                             </tr>
                         </thead>
-                        <tbody>${rows}</tbody>
+                        <tbody>${data.html}</tbody>
                     </table>
                 </div>`;
         });

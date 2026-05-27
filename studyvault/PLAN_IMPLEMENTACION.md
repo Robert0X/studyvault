@@ -369,6 +369,17 @@ Bloque 8 (escala) ── depende de que el núcleo (1–5) esté sólido
 
 ### Entradas reales
 
+### [2026-05-27] Auditoría Wave 3 + esquema canónico limpio
+- **Estado:** ✅ verificado (suite 53/53 contra BD recién creada; lint; smoke sin fatales).
+- **Corregido:**
+  - **Duplicación de la fila de Recursos (MEDIUM)**: `api/search.php` ahora renderiza las filas con la MISMA plantilla `row.php` (vía `ob_start`+include) y el JS solo inyecta el HTML. Una sola fuente de verdad (se elimina la plantilla `<tr>` duplicada en JS).
+  - **CSP (SUGGESTION→hecho)**: cabecera `Content-Security-Policy` en `init.php` (self + CDNs usados).
+  - **Política de contraseñas (LOW)**: registro exige mínimo 8 caracteres (cliente + servidor).
+- **Esquema canónico**: `ENTREGA/studyvault_completo.sql` reescrito como **esquema limpio en un solo archivo** (todas las tablas finales, sin ALTERs, con índices y datos demo). Validado en BD temporal (0 errores) y **aplicado** a `studyvault` (reset limpio, 16 tablas). Mitiga el hallazgo de "migraciones no idempotentes": la instalación usa este archivo canónico.
+- **Archivos:** `api/search.php`, `views/resources/index.php`, `config/init.php`, `controllers/AuthController.php`, `views/auth/login.php`, `ENTREGA/studyvault_completo.sql`.
+- **Pendiente (LOW/SUGGESTION, sin impacto):** soft-delete real en recursos/materias, N+1 en `listWithProgress`, números mágicos, inyección de dependencias, reintentos en APIs, tests e2e de UI. Ver reporte.
+
+
 ### [2026-05-27] Auditoría: HIGH cerrados + Wave 2 (MEDIUM) corregidos
 - **Estado:** ✅ verificado (suite 53/53; lint; smoke sin fatales).
 - **HIGH:**

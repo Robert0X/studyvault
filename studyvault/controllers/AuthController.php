@@ -59,8 +59,8 @@ class AuthController {
             $error = 'Todos los campos son obligatorios.';
         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $error = 'El correo no es válido.';
-        } elseif (strlen($password) < 6) {
-            $error = 'La contraseña debe tener al menos 6 caracteres.';
+        } elseif (strlen($password) < 8) {
+            $error = 'La contraseña debe tener al menos 8 caracteres.';
         } elseif (($_POST['password_confirm'] ?? '') !== $password) {
             $error = 'Las contraseñas no coinciden.';
         } elseif ($this->userModel->emailExists($email)) {

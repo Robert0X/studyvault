@@ -16,42 +16,24 @@ $status    = $_GET['status'] ?? null;
 
 $allowedTypes    = ['link', 'pdf', 'note', 'video'];
 $allowedStatuses = ['pending', 'in_progress', 'completed'];
-
-if ($type && !in_array($type, $allowedTypes))       $type = null;
-if ($status && !in_array($status, $allowedStatuses)) $status = null;
+if ($type && !in_array($type, $allowedTypes, true))       $type = null;
+if ($status && !in_array($status, $allowedStatuses, true)) $status = null;
 
 $model     = new Resource();
-$resources = $model->getByUser($userId, $subjectId, $type, $status, $q);
+$resources = $model->getByUser($userId, $subjectId, $type, $status, $q, 200, 0);
 
-$typeIcons = [
-    'link'  => 'fa-link',
-    'pdf'   => 'fa-file-pdf',
-    'note'  => 'fa-sticky-note',
-    'video' => 'fa-video',
+// Renderiza las filas con la MISMA plantilla que el listado inicial (una sola fuente de verdad).
+$typeIcons   = ['link' => 'fa-link', 'pdf' => 'fa-file-pdf', 'note' => 'fa-sticky-note', 'video' => 'fa-video'];
+$typeLabels  = ['link' => 'Enlace', 'pdf' => 'PDF/Archivo', 'note' => 'Nota', 'video' => 'Video'];
+$statusBadge = [
+    'pending'     => ['label' => 'Pendiente',   'class' => 'warning'],
+    'in_progress' => ['label' => 'En progreso', 'class' => 'info'],
+    'completed'   => ['label' => 'Completado',  'class' => 'success'],
 ];
-$statusLabels = [
-    'pending'     => ['label' => 'Pendiente',    'class' => 'warning'],
-    'in_progress' => ['label' => 'En progreso',  'class' => 'info'],
-    'completed'   => ['label' => 'Completado',   'class' => 'success'],
-];
+ob_start();
+foreach ($resources as $r) {
+    include __DIR__ . '/../views/resources/row.php';
+}
+$html = ob_get_clean();
 
-$result = array_map(function($r) use ($typeIcons, $statusLabels) {
-    return [
-        'id'           => $r['id'],
-        'title'        => htmlspecialchars($r['title']),
-        'description'  => htmlspecialchars($r['description'] ?? ''),
-        'url'          => htmlspecialchars($r['url'] ?? ''),
-        'type'         => $r['type'],
-        'type_icon'    => $typeIcons[$r['type']] ?? 'fa-file',
-        'file_path'    => $r['file_path'] ? htmlspecialchars($r['file_path']) : null,
-        'subject_name' => htmlspecialchars($r['subject_name']),
-        'subject_color'=> htmlspecialchars($r['subject_color']),
-        'subject_icon' => htmlspecialchars($r['subject_icon']),
-        'status'       => $r['status'],
-        'status_label' => $statusLabels[$r['status']]['label'],
-        'status_class' => $statusLabels[$r['status']]['class'],
-        'created_at'   => $r['created_at'],
-    ];
-}, $resources);
-
-echo json_encode(['success' => true, 'data' => $result, 'count' => count($result)]);
+echo json_encode(['success' => true, 'html' => $html, 'count' => count($resources)]);

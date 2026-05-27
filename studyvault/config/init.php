@@ -91,6 +91,17 @@ if (!headers_sent()) {
     header('X-Content-Type-Options: nosniff');
     header('X-Frame-Options: SAMEORIGIN');
     header('Referrer-Policy: strict-origin-when-cross-origin');
+    // CSP: limita los orígenes de scripts/estilos a self + CDNs usados.
+    // Se permite 'unsafe-inline' porque la app usa scripts/estilos en línea (acota el riesgo a XSS reflejado de fuentes externas, ya mitigado con escape).
+    header(
+        "Content-Security-Policy: default-src 'self'; "
+        . "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://code.jquery.com https://cdn.datatables.net; "
+        . "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://cdn.datatables.net https://fonts.googleapis.com; "
+        . "font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com data:; "
+        . "img-src 'self' data:; "
+        . "media-src https:; "
+        . "connect-src 'self'"
+    );
 }
 
 // ── 5. CSRF ─────────────────────────────────────────────────────────

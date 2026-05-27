@@ -116,7 +116,7 @@
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
                                         <input type="password" name="password" id="regPw" class="form-control"
-                                               placeholder="Mínimo 6 caracteres" required minlength="6">
+                                               placeholder="Mínimo 8 caracteres" required minlength="8">
                                         <button type="button" class="btn btn-outline-secondary" onclick="togglePw('regPw', this)" tabindex="-1"><i class="fa-solid fa-eye"></i></button>
                                     </div>
                                 </div>
@@ -125,7 +125,7 @@
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
                                         <input type="password" name="password_confirm" id="regPw2" class="form-control"
-                                               placeholder="Repite la contraseña" required minlength="6">
+                                               placeholder="Repite la contraseña" required minlength="8">
                                         <button type="button" class="btn btn-outline-secondary" onclick="togglePw('regPw2', this)" tabindex="-1"><i class="fa-solid fa-eye"></i></button>
                                     </div>
                                 </div>
