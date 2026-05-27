@@ -146,15 +146,15 @@ class Goal {
     }
 
     /** Plantillas públicas de otros usuarios. */
-    public function getPublicTemplates(int $excludeUserId, int $limit = 40): array {
+    public function getPublicTemplates(int $currentUserId = 0, int $limit = 40): array {
         $stmt = $this->db->prepare(
-            "SELECT g.id, g.title, g.description, g.target_date, u.name AS owner,
+            "SELECT g.id, g.title, g.description, g.target_date, g.user_id AS owner_id, u.name AS owner,
                     (SELECT COUNT(*) FROM goal_resources gr WHERE gr.goal_id = g.id) AS resource_count
              FROM goals g JOIN users u ON g.user_id = u.id
-             WHERE g.is_public = 1 AND g.deleted_at IS NULL AND g.user_id <> ?
+             WHERE g.is_public = 1 AND g.deleted_at IS NULL
              ORDER BY g.created_at DESC LIMIT " . (int) $limit
         );
-        $stmt->execute([$excludeUserId]);
+        $stmt->execute();
         return $stmt->fetchAll();
     }
 

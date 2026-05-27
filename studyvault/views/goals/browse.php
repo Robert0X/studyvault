@@ -26,6 +26,7 @@ require __DIR__ . '/../partials/header.php';
                     <p class="text-muted small mb-2"><?= htmlspecialchars($t['description'] ?: 'Sin descripción') ?></p>
                     <div class="small text-muted mb-3">
                         <i class="fa-solid fa-user me-1"></i><?= htmlspecialchars($t['owner']) ?>
+                        <?php if ((int)$t['owner_id'] === (int)$_SESSION['user_id']): ?><span class="badge bg-secondary ms-1">Tuya</span><?php endif; ?>
                         · <i class="fa-solid fa-box-archive me-1"></i><?= (int)$t['resource_count'] ?> recursos
                         <?php if ($t['target_date']): ?> · <i class="fa-regular fa-calendar me-1"></i><?= htmlspecialchars($t['target_date']) ?><?php endif; ?>
                     </div>

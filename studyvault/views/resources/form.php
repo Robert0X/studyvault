@@ -143,6 +143,12 @@ toggleFileField();
 document.getElementById('resourceForm').addEventListener('submit', function(e) {
     const title     = this.querySelector('[name="title"]').value.trim();
     const subjectId = this.querySelector('[name="subject_id"]').value;
+    const fileInput = this.querySelector('[name="file"]');
+    if (fileInput && fileInput.files[0] && fileInput.files[0].size > 5 * 1024 * 1024) {
+        e.preventDefault();
+        alert('El archivo supera 5 MB. Sube uno más pequeño.');
+        return;
+    }
     if (!title) {
         e.preventDefault();
         alert('El título es obligatorio.');

@@ -369,6 +369,17 @@ Bloque 8 (escala) ── depende de que el núcleo (1–5) esté sólido
 
 ### Entradas reales
 
+### [2026-05-26] Correcciones de QA (reporte del usuario) + login Apple-like
+- **Estado:** ✅ corregido y verificado.
+- **Bugs corregidos:**
+  1. **Tablas en blanco en modo oscuro** (recursos, flashcards y todas): se usaban los colores claros de Bootstrap. Fix con variables `--bs-table-*` (bg transparente + thead oscuro) en `app.css` → aplica a todas las tablas.
+  2. **Estudio (Producción/Escucha) enviaba respuesta vacía** al hacer clic en el input: el clic burbujeaba al `onclick` de la tarjeta y la volteaba. Fix: `event.stopPropagation()` en el input.
+  3. **"POST Content-Length exceeds…" + CSRF inválido** al subir archivo grande: el POST superaba `post_max_size` y PHP vaciaba `$_POST`. Fix: validación de tamaño en cliente (≤5 MB) en el form + guarda en `index.php` que devuelve mensaje claro (413) en vez de "CSRF inválido".
+  4. **Meta pública no aparecía en Plantillas**: `getPublicTemplates` excluía al propio usuario. Fix: ahora incluye todas las públicas y marca las propias con badge "Tuya".
+- **Mejoras pedidas:** registro con **confirmar contraseña** (validación cliente/servidor) e **ícono de ojo** para ver/ocultar en login y registro; **login rediseñado** sobrio/elegante (fondo `#f5f5f7`, logo y botones negros `#1d1d1f`, sin gradientes — estilo Apple).
+- **Archivos:** `assets/css/app.css`, `views/flashcards/study.php`, `views/resources/form.php`, `index.php`, `models/Goal.php`, `views/goals/browse.php`, `views/auth/login.php`, `controllers/AuthController.php`.
+- **Verificación:** lint, tests, plantilla propia visible (owner_id), login con confirmar/ojo, smoke sin fatales. *(El modo oscuro de tablas y el look del login requieren tu confirmación visual.)*
+
 ### [2026-05-26] B8 paginación + retoque de paleta (rediseño parcial)
 - **Estado:** ✅ hecho (paleta pendiente de revisión visual del usuario).
 - **Qué se hizo:**

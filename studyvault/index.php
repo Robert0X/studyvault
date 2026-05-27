@@ -4,6 +4,15 @@ require_once __DIR__ . '/config/init.php';
 $page   = $_GET['page'] ?? 'login';
 $method = $_SERVER['REQUEST_METHOD'];
 
+// POST descartado por exceder post_max_size (p. ej. archivo demasiado grande):
+// PHP vacía $_POST, así que damos un mensaje claro en vez de "CSRF inválido".
+if ($method === 'POST' && empty($_POST) && (int) ($_SERVER['CONTENT_LENGTH'] ?? 0) > 0) {
+    http_response_code(413);
+    header('Content-Type: application/json');
+    echo json_encode(['success' => false, 'message' => 'El archivo es demasiado grande para el servidor. Sube uno menor (máx. 5 MB).']);
+    exit;
+}
+
 // Validar CSRF en TODA petición POST (centralizado)
 if ($method === 'POST') {
     csrf_verify();

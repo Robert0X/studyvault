@@ -19,8 +19,8 @@
                 <div class="sv-auth-logo">
                     <i class="fa-solid fa-vault fa-3x"></i>
                 </div>
-                <h1 class="fw-bold mt-3 text-white">StudyVault</h1>
-                <p class="text-white-50">Tu gestor de material de estudio</p>
+                <h1 class="fw-bold mt-3 text-dark">StudyVault</h1>
+                <p class="text-muted">Tu gestor de material de estudio</p>
             </div>
 
             <!-- Tabs Login / Registro -->
@@ -71,8 +71,9 @@
                                     <label class="form-label">Contraseña</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
-                                        <input type="password" name="password" class="form-control"
+                                        <input type="password" name="password" id="loginPw" class="form-control"
                                                placeholder="••••••••" required>
+                                        <button type="button" class="btn btn-outline-secondary" onclick="togglePw('loginPw', this)" tabindex="-1"><i class="fa-solid fa-eye"></i></button>
                                     </div>
                                 </div>
                                 <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">
@@ -110,12 +111,22 @@
                                                placeholder="tu@correo.com" required>
                                     </div>
                                 </div>
-                                <div class="mb-4">
+                                <div class="mb-3">
                                     <label class="form-label">Contraseña</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
-                                        <input type="password" name="password" class="form-control"
+                                        <input type="password" name="password" id="regPw" class="form-control"
                                                placeholder="Mínimo 6 caracteres" required minlength="6">
+                                        <button type="button" class="btn btn-outline-secondary" onclick="togglePw('regPw', this)" tabindex="-1"><i class="fa-solid fa-eye"></i></button>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label">Confirmar contraseña</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+                                        <input type="password" name="password_confirm" id="regPw2" class="form-control"
+                                               placeholder="Repite la contraseña" required minlength="6">
+                                        <button type="button" class="btn btn-outline-secondary" onclick="togglePw('regPw2', this)" tabindex="-1"><i class="fa-solid fa-eye"></i></button>
                                     </div>
                                 </div>
                                 <button type="submit" class="btn btn-success w-100 py-2 fw-semibold">
@@ -131,5 +142,13 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function togglePw(id, btn) {
+    const inp = document.getElementById(id);
+    const icon = btn.querySelector('i');
+    if (inp.type === 'password') { inp.type = 'text'; icon.className = 'fa-solid fa-eye-slash'; }
+    else { inp.type = 'password'; icon.className = 'fa-solid fa-eye'; }
+}
+</script>
 </body>
 </html>

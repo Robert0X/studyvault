@@ -92,10 +92,10 @@ $level = (isset($_GET['level']) && in_array($_GET['level'], ['A1','A2','B1','B2'
             const btn = c.audio
                 ? `<button class="btn btn-lg btn-primary" onclick="event.stopPropagation(); new Audio('${c.audio}').play().catch(()=>{})"><i class="fa-solid fa-volume-high me-1"></i>Reproducir</button>`
                 : `<div class="text-muted">(esta tarjeta no tiene audio; usa otro modo)</div>`;
-            return `${btn}<input id="prodInput" class="form-control mt-3 text-center" placeholder="Escribe lo que escuchaste...">`;
+            return `${btn}<input id="prodInput" class="form-control mt-3 text-center" onclick="event.stopPropagation()" placeholder="Escribe lo que escuchaste...">`;
         }
         // producción
-        return `<div class="h4">${c.back}</div><input id="prodInput" class="form-control mt-3 text-center" placeholder="Escribe la palabra en inglés...">`;
+        return `<div class="h4">${c.back}</div><input id="prodInput" class="form-control mt-3 text-center" onclick="event.stopPropagation()" placeholder="Escribe la palabra en inglés...">`;
     }
 
     function renderCard() {

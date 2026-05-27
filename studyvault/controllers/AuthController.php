@@ -54,6 +54,8 @@ class AuthController {
             $error = 'El correo no es válido.';
         } elseif (strlen($password) < 6) {
             $error = 'La contraseña debe tener al menos 6 caracteres.';
+        } elseif (($_POST['password_confirm'] ?? '') !== $password) {
+            $error = 'Las contraseñas no coinciden.';
         } elseif ($this->userModel->emailExists($email)) {
             $error = 'Este correo ya está registrado.';
         } else {
