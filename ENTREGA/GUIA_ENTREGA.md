@@ -36,7 +36,7 @@ Proyecto Final/
 
 ### Opción manual (por separado)
 Ejecuta en este orden los archivos dentro de `studyvault/`:
-`studyvault.sql` → `migrations_v2.sql` → `migrations_v3.sql` → `migrations_v4.sql` → `migrations_v5.sql`
+`studyvault.sql` → `migrations_v2.sql` → `migrations_v3.sql` → `migrations_v4.sql` → `migrations_v5.sql` → `migrations_v6.sql`
 
 ---
 

@@ -17,12 +17,18 @@ class AuthController {
         $email    = trim($_POST['email'] ?? '');
         $password = $_POST['password'] ?? '';
         $error    = '';
+        $ip       = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+        $throttle = new LoginThrottle();
 
-        if (empty($email) || empty($password)) {
+        if ($throttle->tooMany($ip, $email)) {
+            $wait  = (int) ceil($throttle->secondsUntilRetry($ip, $email) / 60);
+            $error = "Demasiados intentos fallidos. Intenta de nuevo en {$wait} minuto(s).";
+        } elseif (empty($email) || empty($password)) {
             $error = 'Por favor completa todos los campos.';
         } else {
             $user = $this->userModel->findByEmail($email);
             if ($user && $this->userModel->verifyPassword($password, $user['password'])) {
+                $throttle->clearFailures($email);
                 session_regenerate_id(true);
                 $_SESSION['user_id']   = $user['id'];
                 $_SESSION['user_name'] = $user['name'];
@@ -30,6 +36,7 @@ class AuthController {
                 header('Location: ' . BASE_URL . '?page=dashboard');
                 exit;
             } else {
+                $throttle->record($ip, $email, false);
                 $error = 'Correo o contraseña incorrectos.';
             }
         }

@@ -106,10 +106,15 @@ function csrf_field(): string {
     return '<input type="hidden" name="csrf_token" value="' . htmlspecialchars(csrf_token()) . '">';
 }
 
+/** Comprueba un token CSRF contra el de la sesión (puro, sin efectos). */
+function csrf_check(?string $token): bool {
+    return is_string($token) && $token !== '' && hash_equals($_SESSION['csrf_token'] ?? '', $token);
+}
+
 /** Valida el token en peticiones POST. Corta la ejecución si es inválido. */
 function csrf_verify(): void {
     $token = $_POST['csrf_token'] ?? ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
-    if (!is_string($token) || !hash_equals($_SESSION['csrf_token'] ?? '', $token)) {
+    if (!csrf_check(is_string($token) ? $token : null)) {
         http_response_code(403);
         header('Content-Type: application/json');
         echo json_encode(['success' => false, 'message' => 'Token CSRF inválido. Recarga la página.']);
