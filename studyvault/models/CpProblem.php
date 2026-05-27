@@ -187,8 +187,22 @@ class CpProblem {
     }
 
     public function suggestNext(int $userId, int $rating, int $count = 6): array {
-        $stmt = $this->db->prepare("SELECT * FROM cf_problemset_cache WHERE rating BETWEEN ? AND ? ORDER BY RAND() LIMIT 200");
-        $stmt->execute([$rating + 100, $rating + 300]);
+        $low = $rating + 100;
+        $high = $rating + 300;
+        // Ventana aleatoria sobre el índice de rating (evita ORDER BY RAND() en ~9000 filas).
+        $cnt = $this->db->prepare("SELECT COUNT(*) FROM cf_problemset_cache WHERE rating BETWEEN ? AND ?");
+        $cnt->execute([$low, $high]);
+        $total = (int) $cnt->fetchColumn();
+        if ($total === 0) {
+            return [];
+        }
+        $window = 200;
+        $offset = $total > $window ? random_int(0, $total - $window) : 0;
+        $stmt = $this->db->prepare(
+            "SELECT * FROM cf_problemset_cache WHERE rating BETWEEN ? AND ?
+             ORDER BY contest_id DESC, idx LIMIT {$window} OFFSET {$offset}"
+        );
+        $stmt->execute([$low, $high]);
         $solved = $this->solvedKeys($userId);
         $out = [];
         foreach ($stmt->fetchAll() as $p) {
@@ -197,10 +211,8 @@ class CpProblem {
             }
             $p['url'] = "https://codeforces.com/problemset/problem/{$p['contest_id']}/{$p['idx']}";
             $out[] = $p;
-            if (count($out) >= $count) {
-                break;
-            }
         }
-        return $out;
+        shuffle($out); // mezcla barata del subconjunto pequeño
+        return array_slice($out, 0, $count);
     }
 }

@@ -40,29 +40,13 @@ $units      = new UnitController();
 $goals      = new GoalController();
 $timer      = new TimerController();
 $report     = new ReportController();
+$dashboard  = new DashboardController();
 
 $action = $_GET['action'] ?? null;
 $post   = $_POST['_action'] ?? null;
 
 match (true) {
-    $page === 'dashboard' => (function () {
-        $resourceModel = new Resource();
-        $subjectModel  = new Subject();
-        $cardModel     = new Flashcard();
-        $userId        = (int) $_SESSION['user_id'];
-        $isAdmin       = $_SESSION['user_role'] === 'admin';
-        $stats         = $resourceModel->getStats($userId);
-        $recent        = $resourceModel->getRecent($userId, 6);
-        $subjectStats  = $subjectModel->getWithStats($userId, $isAdmin);
-        $dueCards      = $cardModel->countDue($userId);
-        $goalModel     = new Goal();
-        $sessionModel  = new StudySession();
-        $goals         = $goalModel->listWithProgress($userId, date('Y-m-d'));
-        $timeToday     = $sessionModel->todayMinutes($userId);
-        $timeWeek      = $sessionModel->rangeMinutes($userId, 7);
-        $streak        = $sessionModel->streak($userId);
-        require __DIR__ . '/views/dashboard/index.php';
-    })(),
+    $page === 'dashboard' => $dashboard->index(),
 
     $page === 'subjects' && $method === 'GET'                       => $subjects->index(),
     $page === 'subjects' && $method === 'POST' && $post === 'store'   => $subjects->store(),

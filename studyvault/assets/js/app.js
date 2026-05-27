@@ -1,5 +1,10 @@
 /* StudyVault — app.js */
 
+/* Escapa texto antes de insertarlo con innerHTML (defensa XSS para datos de APIs externas) */
+function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
 /* ============================
    Modo oscuro
    ============================ */
@@ -63,16 +68,16 @@ let __lastDict = null;
 
                 let html = `<div class="sv-dict-result mt-1">`;
                 html += `<div class="d-flex align-items-center gap-2 flex-wrap">`;
-                html += `<span class="sv-dict-word">${data.word}</span>`;
-                if (data.phonetic) html += `<span class="sv-dict-phonetic">${data.phonetic}</span>`;
+                html += `<span class="sv-dict-word">${esc(data.word)}</span>`;
+                if (data.phonetic) html += `<span class="sv-dict-phonetic">${esc(data.phonetic)}</span>`;
                 if (data.audio) html += `<button class="btn btn-sm btn-link p-0" onclick="playAudio('${data.audio}')" title="Escuchar"><i class="fa-solid fa-volume-high text-primary"></i></button>`;
                 html += `</div>`;
 
                 data.meanings.forEach(m => {
-                    html += `<div class="sv-dict-pos mt-1">${m.partOfSpeech}</div>`;
+                    html += `<div class="sv-dict-pos mt-1">${esc(m.partOfSpeech)}</div>`;
                     m.definitions.slice(0, 2).forEach(d => {
-                        html += `<div class="sv-dict-def">• ${d.definition}</div>`;
-                        if (d.example) html += `<div class="sv-dict-def text-muted fst-italic small">"${d.example}"</div>`;
+                        html += `<div class="sv-dict-def">• ${esc(d.definition)}</div>`;
+                        if (d.example) html += `<div class="sv-dict-def text-muted fst-italic small">"${esc(d.example)}"</div>`;
                     });
                 });
                 html += `<div id="dictColloc"></div>`;
@@ -88,7 +93,7 @@ let __lastDict = null;
                         if (dm.success && dm.collocations && dm.collocations.length) {
                             __lastDict.collocations = dm.collocations.join(', ');
                             const el = document.getElementById('dictColloc');
-                            if (el) el.innerHTML = `<div class="sv-dict-def small mt-1"><strong>Se usa con:</strong> ${dm.collocations.slice(0, 8).join(', ')}</div>`;
+                            if (el) el.innerHTML = `<div class="sv-dict-def small mt-1"><strong>Se usa con:</strong> ${dm.collocations.slice(0, 8).map(esc).join(', ')}</div>`;
                         }
                     })
                     .catch(() => {});
@@ -100,7 +105,7 @@ let __lastDict = null;
                         if (tt.success && tt.sentences && tt.sentences.length) {
                             const el = document.getElementById('dictExamples');
                             if (el) el.innerHTML = '<div class="sv-dict-def small mt-1"><strong>Ejemplos:</strong></div>' +
-                                tt.sentences.map(s => `<div class="sv-dict-def text-muted fst-italic small">"${s}"</div>`).join('');
+                                tt.sentences.map(s => `<div class="sv-dict-def text-muted fst-italic small">"${esc(s)}"</div>`).join('');
                         }
                     })
                     .catch(() => {});

@@ -310,3 +310,13 @@ CREATE TABLE IF NOT EXISTS login_attempts (
 );
 CREATE INDEX idx_login_ip    ON login_attempts (ip, attempted_at);
 CREATE INDEX idx_login_email ON login_attempts (email, attempted_at);
+
+
+-- ============================================================
+-- StudyVault — Migración v7 (rendimiento: índices)
+-- Ejecutar UNA VEZ después de migrations_v6.sql.
+-- ============================================================
+USE studyvault;
+
+CREATE INDEX idx_flashcards_level ON flashcards (user_id, cefr_level);
+CREATE INDEX idx_cp_status        ON cp_problems (user_id, status);

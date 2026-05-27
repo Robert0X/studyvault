@@ -369,6 +369,22 @@ Bloque 8 (escala) ── depende de que el núcleo (1–5) esté sólido
 
 ### Entradas reales
 
+### [2026-05-27] Auditoría: HIGH cerrados + Wave 2 (MEDIUM) corregidos
+- **Estado:** ✅ verificado (suite 53/53; lint; smoke sin fatales).
+- **HIGH:**
+  - **Throttling de login** (`LoginThrottle` + `migrations_v6` `login_attempts`) — persistente por IP+email con ventana de decaimiento; integrado en `AuthController::login`. Verificado en vivo y por test.
+  - **Tests de rutas críticas** — `tests/auth_test.php` (hashing, throttle, CSRF) y `tests/security_test.php` (IDOR por dueño). Cazaron un **bug real**: `Unit::create` devolvía 0 (en MySQL `lastInsertId()` se resetea tras un `UPDATE`; ahora se captura antes de `syncCount`).
+- **MEDIUM corregidos:**
+  - **XSS** en el widget de diccionario: helper `esc()` en `app.js` aplicado a definición/ejemplo/fonética/colocaciones/frases (datos de APIs externas).
+  - **`BASE_URL` a `.env`** (`config.php` con `env()` + fallback); separación de entornos.
+  - **`APP_DEBUG=false`** por defecto (no se filtran errores/warnings).
+  - **DashboardController** extraído (antes era una closure en `index.php`) → consistencia con el resto.
+  - **`suggestNext` sin `ORDER BY RAND()`** (ventana aleatoria sobre índice de rating + shuffle en PHP).
+- **LOW:** índices `flashcards(user_id,cefr_level)` y `cp_problems(user_id,status)` (`migrations_v7`); `.gitattributes` (normaliza EOL, silencia avisos CRLF).
+- **Archivos:** `models/{LoginThrottle,Unit,CpProblem}.php`, `controllers/{AuthController,DashboardController}.php`, `config/{init,config}.php`, `assets/js/app.js`, `.env(.example)`, `.gitattributes`, `tests/{auth,security}_test.php`, `migrations_v6/v7.sql`, `ENTREGA/studyvault_completo.sql`.
+- **Pendiente (documentado):** dedup de markup de fila de recursos (PHP↔JS), soft-delete real, tests e2e, CSP, política de contraseñas, CI. Ver reporte de auditoría.
+
+
 ### [2026-05-26] Correcciones de QA (reporte del usuario) + login Apple-like
 - **Estado:** ✅ corregido y verificado.
 - **Bugs corregidos:**
