@@ -7,6 +7,32 @@
 
 ---
 
+## ⭐ Tareas pendientes (de `descripcion.md` / auditoría) — para implementar después
+
+> Derivadas de `../CUMPLIMIENTO_DESCRIPCION.md`, ordenadas por valor/impacto. (Pendientes, sin empezar.)
+
+**Alto impacto / bajo esfuerzo:**
+- [ ] **Ordenamiento de tablas** con DataTables (ya está cargado) en Recursos/CP/Flashcards → cierra el punto 6 "ordenamiento".
+- [ ] **Gráficas estadísticas (Chart.js)**: curva de rating de Codeforces, minutos/semana, problemas por tag (debilidades), vocabulario por nivel CEFR → refuerza "ver avance real".
+
+**Roles / panel (cierra el punto 5):**
+- [ ] Rol **Invitado** de solo lectura (explorar plantillas públicas sin cuenta).
+- [ ] **Mini-panel de administrador** (gestión de usuarios + uso global).
+
+**Opcionales de rúbrica (nivel intermedio):**
+- [ ] **Exportar PDF** de progreso/meta (p. ej. DOMPDF).
+- [ ] **Recuperación de contraseña** (token + expiración).
+- [ ] **Notificaciones / recordatorios** de repasos pendientes (Notification API o centro in-app).
+
+**Avanzado (opcional):**
+- [ ] **API REST propia** documentada (`/api/v1/...`) → habilita "publicación de servicios web" y una futura PWA.
+
+**Entrega:**
+- [ ] Llenar `ENTREGA/DOCUMENTACION.md` (portada, diagrama BD, casos de uso, capturas).
+- [ ] (Opcional) Video demostrativo.
+
+---
+
 ## A. Metodología (cómo clasifico)
 
 Cada mejora se evalúa en dos ejes + dependencias:
