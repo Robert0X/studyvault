@@ -9,7 +9,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 if ($method === 'POST' && empty($_POST) && (int) ($_SERVER['CONTENT_LENGTH'] ?? 0) > 0) {
     http_response_code(413);
     header('Content-Type: application/json');
-    echo json_encode(['success' => false, 'message' => 'El archivo es demasiado grande para el servidor. Sube uno menor (máx. 5 MB).']);
+    echo json_encode(['success' => false, 'message' => 'El archivo es demasiado grande para el servidor. Sube uno menor (máx. ' . (defined('MAX_FILE_SIZE_MB') ? MAX_FILE_SIZE_MB : 50) . ' MB).']);
     exit;
 }
 
@@ -18,29 +18,43 @@ if ($method === 'POST') {
     csrf_verify();
 }
 
-// Páginas públicas
-if (in_array($page, ['login', 'register', 'logout'], true)) {
+// Páginas públicas (auth) y vistas que admiten invitado
+$publicPages = ['login', 'register', 'logout', 'forgot', 'reset'];
+
+if (in_array($page, $publicPages, true)) {
     $auth = new AuthController();
     match ($page) {
         'login'    => $auth->login(),
         'register' => $auth->register(),
         'logout'   => $auth->logout(),
+        'forgot'   => $auth->forgot(),
+        'reset'    => $auth->reset(),
     };
+    exit;
+}
+
+// Rol "Invitado": el listado público de plantillas es accesible sin sesión.
+// Sólo aplica a GET (las acciones que mutan datos exigen sesión).
+if ($page === 'goals' && $method === 'GET' && ($_GET['action'] ?? '') === 'browse') {
+    (new GoalController())->browse();
     exit;
 }
 
 // Todas las demás requieren sesión
 requireLogin();
 
-$subjects   = new SubjectController();
-$resources  = new ResourceController();
-$flashcards = new FlashcardController();
-$cp         = new CpController();
-$units      = new UnitController();
-$goals      = new GoalController();
-$timer      = new TimerController();
-$report     = new ReportController();
-$dashboard  = new DashboardController();
+$subjects      = new SubjectController();
+$resources     = new ResourceController();
+$flashcards    = new FlashcardController();
+$cp            = new CpController();
+$units         = new UnitController();
+$goals         = new GoalController();
+$timer         = new TimerController();
+$report        = new ReportController();
+$dashboard     = new DashboardController();
+$stats         = new StatsController();
+$notifications = new NotificationController();
+$admin         = new AdminController();
 
 $action = $_GET['action'] ?? null;
 $post   = $_POST['_action'] ?? null;
@@ -90,7 +104,6 @@ match (true) {
     $page === 'units' && $method === 'POST' && $post === 'destroy'  => $units->destroy(),
 
     $page === 'goals' && $method === 'GET' && $action === 'show'   => $goals->show(),
-    $page === 'goals' && $method === 'GET' && $action === 'browse' => $goals->browse(),
     $page === 'goals' && $method === 'GET'                         => $goals->index(),
     $page === 'goals' && $method === 'POST' && $post === 'store'    => $goals->store(),
     $page === 'goals' && $method === 'POST' && $post === 'update'   => $goals->update(),
@@ -105,6 +118,21 @@ match (true) {
     $page === 'timer' && $method === 'POST' && $post === 'set_goal'  => $timer->setDailyGoal(),
 
     $page === 'report' && $method === 'GET'                     => $report->index(),
+
+    // Estadísticas con Chart.js
+    $page === 'stats' && $method === 'GET' && $action === 'feed' => $stats->feed(),
+    $page === 'stats' && $method === 'GET'                       => $stats->index(),
+
+    // Notificaciones
+    $page === 'notifications' && $method === 'GET' && $action === 'feed' => $notifications->feed(),
+    $page === 'notifications' && $method === 'GET'                       => $notifications->index(),
+    $page === 'notifications' && $method === 'POST' && $post === 'mark_read'     => $notifications->markRead(),
+    $page === 'notifications' && $method === 'POST' && $post === 'mark_all'      => $notifications->markAllRead(),
+    $page === 'notifications' && $method === 'POST' && $post === 'destroy'       => $notifications->destroy(),
+
+    // Panel administrativo
+    $page === 'admin' && $method === 'GET'                                => $admin->index(),
+    $page === 'admin' && $method === 'POST' && $post === 'toggle_active'  => $admin->toggleActive(),
 
     default => (function () {
         http_response_code(404);

@@ -102,7 +102,7 @@ require __DIR__ . '/../partials/header.php';
                                     (subir nuevo para reemplazar)
                                 </div>
                             <?php endif; ?>
-                            <div class="form-text">Máximo 5MB. Formatos: PDF, JPG, PNG, GIF, WEBP</div>
+                            <div class="form-text">Máximo <?= MAX_FILE_SIZE_MB ?> MB. Formatos: PDF, JPG, PNG, GIF, WEBP</div>
                         </div>
 
                         <!-- Estado -->
@@ -144,9 +144,10 @@ document.getElementById('resourceForm').addEventListener('submit', function(e) {
     const title     = this.querySelector('[name="title"]').value.trim();
     const subjectId = this.querySelector('[name="subject_id"]').value;
     const fileInput = this.querySelector('[name="file"]');
-    if (fileInput && fileInput.files[0] && fileInput.files[0].size > 5 * 1024 * 1024) {
+    const MAX_MB = <?= MAX_FILE_SIZE_MB ?>;
+    if (fileInput && fileInput.files[0] && fileInput.files[0].size > MAX_MB * 1024 * 1024) {
         e.preventDefault();
-        alert('El archivo supera 5 MB. Sube uno más pequeño.');
+        alert('El archivo supera ' + MAX_MB + ' MB. Sube uno más pequeño.');
         return;
     }
     if (!title) {

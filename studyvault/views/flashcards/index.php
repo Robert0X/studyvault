@@ -76,7 +76,7 @@ require __DIR__ . '/../partials/header.php';
             </div>
         <?php else: ?>
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
+                <table class="table table-hover align-middle mb-0" data-sv-sortable>
                     <thead class="table-light">
                         <tr>
                             <th>Anverso</th>
@@ -84,7 +84,7 @@ require __DIR__ . '/../partials/header.php';
                             <th>Mazo</th>
                             <th>Estado</th>
                             <th class="d-none d-sm-table-cell">Próx. repaso</th>
-                            <th class="text-end">Acciones</th>
+                            <th class="text-end" data-sv-no-sort>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>

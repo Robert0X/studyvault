@@ -97,14 +97,14 @@ $statusBadge = [
                 </div>
             <?php else: ?>
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0" id="resourcesTable">
+                    <table class="table table-hover align-middle mb-0" id="resourcesTable" data-sv-sortable data-sv-sort-only>
                         <thead class="table-light">
                             <tr>
                                 <th>Recurso</th>
                                 <th class="d-none d-md-table-cell">Materia</th>
                                 <th class="d-none d-sm-table-cell">Tipo</th>
                                 <th>Estado</th>
-                                <th class="text-end">Acciones</th>
+                                <th class="text-end" data-sv-no-sort>Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="resourcesBody">
@@ -165,19 +165,21 @@ function doSearch() {
             // Las filas las renderiza el servidor con la MISMA plantilla (row.php) → una sola fuente de verdad.
             container.innerHTML = `
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
+                    <table class="table table-hover align-middle mb-0" data-sv-sortable data-sv-sort-only>
                         <thead class="table-light">
                             <tr>
                                 <th>Recurso</th>
                                 <th class="d-none d-md-table-cell">Materia</th>
                                 <th class="d-none d-sm-table-cell">Tipo</th>
                                 <th>Estado</th>
-                                <th class="text-end">Acciones</th>
+                                <th class="text-end" data-sv-no-sort>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>${data.html}</tbody>
                     </table>
                 </div>`;
+            // Re-aplica ordenamiento DataTables sobre el nuevo tbody.
+            if (typeof svInitDataTables === 'function') svInitDataTables();
         });
 }
 

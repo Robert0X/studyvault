@@ -15,9 +15,70 @@ class User {
     }
 
     public function findById(int $id): array|false {
-        $stmt = $this->db->prepare("SELECT id, name, email, role, created_at FROM users WHERE id = ?");
+        $stmt = $this->db->prepare("SELECT id, name, email, role, active, created_at FROM users WHERE id = ?");
         $stmt->execute([$id]);
         return $stmt->fetch();
+    }
+
+    public function isActive(int $id): bool {
+        $stmt = $this->db->prepare("SELECT active FROM users WHERE id = ?");
+        $stmt->execute([$id]);
+        return (int) $stmt->fetchColumn() === 1;
+    }
+
+    public function setActive(int $id, bool $active): bool {
+        $stmt = $this->db->prepare("UPDATE users SET active = ? WHERE id = ?");
+        return $stmt->execute([$active ? 1 : 0, $id]);
+    }
+
+    public function updatePassword(int $id, string $password): bool {
+        $hash = password_hash($password, PASSWORD_DEFAULT);
+        $stmt = $this->db->prepare("UPDATE users SET password = ? WHERE id = ?");
+        return $stmt->execute([$hash, $id]);
+    }
+
+    /** Listado paginado para el panel admin (con búsqueda por nombre/email). */
+    public function paginate(int $page = 1, int $perPage = 20, string $q = ''): array {
+        $offset = max(0, ($page - 1) * $perPage);
+        $where  = '';
+        $params = [];
+        if ($q !== '') {
+            $where = " WHERE name LIKE ? OR email LIKE ?";
+            $like  = "%$q%";
+            $params = [$like, $like];
+        }
+        $stmt = $this->db->prepare(
+            "SELECT id, name, email, role, active, created_at
+             FROM users{$where}
+             ORDER BY created_at DESC
+             LIMIT " . (int) $perPage . " OFFSET " . (int) $offset
+        );
+        $stmt->execute($params);
+        $rows = $stmt->fetchAll();
+
+        $cnt = $this->db->prepare("SELECT COUNT(*) FROM users{$where}");
+        $cnt->execute($params);
+        return ['rows' => $rows, 'total' => (int) $cnt->fetchColumn()];
+    }
+
+    /** Totales globales para el admin (uso de la plataforma). */
+    public function globalStats(): array {
+        $tables = [
+            'users'          => 'users',
+            'subjects'       => 'subjects',
+            'resources'      => 'resources',
+            'flashcards'     => 'flashcards',
+            'cp_problems'    => 'cp_problems',
+            'goals'          => 'goals',
+            'study_sessions' => 'study_sessions',
+        ];
+        $out = [];
+        foreach ($tables as $k => $t) {
+            $out[$k] = (int) $this->db->query("SELECT COUNT(*) FROM {$t}")->fetchColumn();
+        }
+        $out['active_users']   = (int) $this->db->query("SELECT COUNT(*) FROM users WHERE active = 1")->fetchColumn();
+        $out['total_minutes']  = (int) $this->db->query("SELECT COALESCE(SUM(minutes),0) FROM study_sessions")->fetchColumn();
+        return $out;
     }
 
     public function create(string $name, string $email, string $password, string $role = 'student'): int {

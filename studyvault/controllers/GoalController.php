@@ -111,9 +111,13 @@ class GoalController {
         json_response(['success' => $ok, 'message' => $ok ? ($public ? 'Publicada como plantilla.' : 'Ahora es privada.') : 'Error.']);
     }
 
+    /**
+     * Plantillas públicas — accesible también para invitados (sin sesión).
+     * Los invitados ven el catálogo, pero el botón "Clonar" requiere cuenta.
+     */
     public function browse(): void {
-        requireLogin();
-        $userId    = (int) $_SESSION['user_id'];
+        $isGuest   = empty($_SESSION['user_id']);
+        $userId    = (int) ($_SESSION['user_id'] ?? 0);
         $templates = $this->model->getPublicTemplates($userId);
         require __DIR__ . '/../views/goals/browse.php';
     }

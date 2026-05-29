@@ -5,6 +5,8 @@ Análisis punto por punto de los requisitos de `descripcion.md` frente a lo real
 **Leyenda:** ✅ Cumple · 🟡 Parcial · ❌ No cumple
 
 > Fecha: 2026-05-27 · Documento de análisis, **sin cambios al proyecto**.
+>
+> **Actualización 2026-05-28:** se implementaron 7 de los 8 puntos parciales/❌ que se podían cubrir al 100% sin nueva infraestructura (DataTables, Chart.js, Rol Invitado, Panel Admin, Recuperación de contraseña con token, Notificaciones in-app + Notification API, Exportar PDF vía `window.print()` + CSS de impresión). Detalles en `studyvault/PLAN_IMPLEMENTACION.md` (entrada 2026-05-28). Migración requerida: `migrations_v8.sql`.
 
 ---
 
@@ -17,21 +19,21 @@ Análisis punto por punto de los requisitos de `descripcion.md` frente a lo real
 | 2 | Cliente (JavaScript) | ✅ |
 | 3 | Servidor (PHP OOP) | ✅ |
 | 4 | Base de datos MySQL | ✅ |
-| 5 | Autenticación, sesiones y **roles** | 🟡 (faltan privilegios admin / rol invitado) |
-| 6 | Funcionalidades dinámicas obligatorias | 🟡 (falta **ordenamiento**; panel admin parcial) |
+| 5 | Autenticación, sesiones y **roles** | ✅ (rol Invitado en plantillas públicas + panel admin) |
+| 6 | Funcionalidades dinámicas obligatorias | ✅ (DataTables en Flashcards/CP/Recursos/Admin; panel admin con CRUD de estado) |
 | 7 | AJAX / fetch | ✅ |
 | 8 | Consumo de servicios web | ✅ (4 APIs públicas) |
 | 9 | Seguridad mínima | ✅ (supera lo pedido) |
 | 10 | Arquitectura MVC | ✅ |
-| Opc-Int | Recuperación de contraseña | ❌ |
-| Opc-Int | Exportar PDF o Excel | 🟡 (CSV sí, PDF no) |
-| Opc-Int | Gráficas estadísticas | 🟡 (barras/heatmap, sin gráficas reales) |
-| Opc-Int | Notificaciones | 🟡 (avisos in-app, sin recordatorios) |
+| Opc-Int | Recuperación de contraseña | ✅ (token + expiración 1h, enlace en pantalla sin SMTP) |
+| Opc-Int | Exportar PDF o Excel | ✅ (CSV + PDF de reporte/meta vía `window.print()` + CSS print) |
+| Opc-Int | Gráficas estadísticas | ✅ (6 gráficas Chart.js en `?page=stats`) |
+| Opc-Int | Notificaciones | ✅ (centro in-app + Notification API + recordatorios automáticos) |
 | Opc-Int | Tema oscuro | ✅ |
 | Opc-Int | Bitácora de acciones | ✅ |
 | Opc-Av | API REST propia | ❌ |
 | Opc-Av | WebSockets / Chat | ❌ |
-| Opc-Av | Panel administrativo avanzado | ❌ |
+| Opc-Av | Panel administrativo avanzado | 🟡 (mini-panel implementado: usuarios + uso global; falta auditoría granular) |
 | Opc-Av | Nube / Docker / Framework | ❌ |
 | Entreg | Documentación formal | 🟡 (falta llenar doc + capturas + diagrama BD) |
 | Entreg | Código / BD .sql / Manual | ✅ |

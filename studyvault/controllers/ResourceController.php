@@ -71,7 +71,7 @@ class ResourceController {
             if (!in_array($mimeType, ALLOWED_TYPES)) {
                 $error = 'Tipo de archivo no permitido. Solo PDF e imágenes.';
             } elseif ($file['size'] > MAX_FILE_SIZE) {
-                $error = 'El archivo supera el límite de 5MB.';
+                $error = 'El archivo supera el límite de ' . MAX_FILE_SIZE_MB . ' MB.';
             } else {
                 $ext      = pathinfo($file['name'], PATHINFO_EXTENSION);
                 $filename = uniqid('file_') . '.' . $ext;
@@ -137,7 +137,7 @@ class ResourceController {
             if (!in_array($mimeType, ALLOWED_TYPES)) {
                 $error = 'Tipo de archivo no permitido.';
             } elseif ($file['size'] > MAX_FILE_SIZE) {
-                $error = 'El archivo supera 5MB.';
+                $error = 'El archivo supera ' . MAX_FILE_SIZE_MB . ' MB.';
             } else {
                 $ext      = pathinfo($file['name'], PATHINFO_EXTENSION);
                 $filename = uniqid('file_') . '.' . $ext;

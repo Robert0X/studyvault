@@ -131,14 +131,14 @@ $rating = $cf['cf_rating'] ?? null;
                     </div>
                 <?php else: ?>
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
+                        <table class="table table-hover align-middle mb-0" data-sv-sortable>
                             <thead class="table-light">
                                 <tr>
                                     <th>Problema</th>
                                     <th class="d-none d-md-table-cell">Rating</th>
                                     <th class="d-none d-lg-table-cell">Tags</th>
                                     <th>Estado</th>
-                                    <th class="text-end">—</th>
+                                    <th class="text-end" data-sv-no-sort>—</th>
                                 </tr>
                             </thead>
                             <tbody>

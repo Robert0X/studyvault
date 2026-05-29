@@ -348,3 +348,61 @@ body {
 .sv-card-back { font-size: 1.05rem; }
 .sv-card-deck { font-size: .8rem; }
 [data-theme="dark"] .sv-card-front { color: #7e9bff; }
+
+/* ============================
+   Notificaciones
+   ============================ */
+.sv-notif-menu {
+    max-height: 420px;
+    overflow-y: auto;
+}
+.sv-notif-list .sv-notif-item {
+    border-bottom: 1px solid #eef0f3;
+    white-space: normal;
+}
+.sv-notif-list .sv-notif-item:last-child { border-bottom: 0; }
+.sv-notif-unread { background-color: rgba(79,70,229,.05); }
+.sv-notif-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--sv-primary);
+    align-self: center;
+    flex-shrink: 0;
+}
+[data-theme="dark"] .sv-notif-list .sv-notif-item { border-color: #2a2e37; }
+[data-theme="dark"] .sv-notif-unread { background-color: rgba(126,155,255,.08); }
+
+/* ============================
+   DataTables: armonizar con Bootstrap (claro y oscuro)
+   ============================ */
+.dataTables_wrapper .dataTables_filter input,
+.dataTables_wrapper .dataTables_length select {
+    border: 1px solid #ced4da; border-radius: 6px; padding: 2px 8px;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button.current,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+    background: var(--sv-primary) !important; color: #fff !important; border-color: var(--sv-primary) !important;
+}
+[data-theme="dark"] .dataTables_wrapper { color: #e4e6eb; }
+[data-theme="dark"] .dataTables_wrapper .dataTables_filter input,
+[data-theme="dark"] .dataTables_wrapper .dataTables_length select {
+    background-color: #20242d; border-color: #2a2e37; color: #e4e6eb;
+}
+[data-theme="dark"] .page-link { background-color: #1a1d24; border-color: #2a2e37; color: #e4e6eb; }
+
+/* ============================
+   Estilos para impresión (Exportar PDF vía window.print)
+   ============================ */
+@media print {
+    .sv-navbar, .sv-sidebar, .sv-page-header .btn, .btn, .navbar, .sv-widget,
+    .dropdown, footer { display: none !important; }
+    .sv-main { padding: 0 !important; }
+    body { background: #fff !important; color: #000 !important; }
+    .card { box-shadow: none !important; border: 1px solid #ddd !important; break-inside: avoid; }
+    a { color: #000 !important; text-decoration: none !important; }
+    .sv-page-header { border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 16px; }
+    .sv-page-header::after {
+        content: "StudyVault — Reporte generado";
+        display: block; font-size: .75rem; color: #555; margin-top: 4px;
+    }
+    .progress-bar { background-color: #444 !important; }
+}

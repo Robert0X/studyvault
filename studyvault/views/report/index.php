@@ -9,7 +9,12 @@ $delta = $week - $prevWeek;
         <h2 class="mb-0"><i class="fa-solid fa-chart-line me-2"></i>Reporte semanal</h2>
         <p class="text-muted mb-0">Tu actividad de los últimos 7 días</p>
     </div>
-    <a href="<?= BASE_URL ?>?page=dashboard" class="btn btn-outline-secondary"><i class="fa-solid fa-arrow-left me-1"></i>Volver</a>
+    <div class="d-flex gap-2">
+        <button class="btn btn-outline-primary" onclick="window.print()">
+            <i class="fa-solid fa-file-pdf me-1"></i>Exportar PDF
+        </button>
+        <a href="<?= BASE_URL ?>?page=dashboard" class="btn btn-outline-secondary"><i class="fa-solid fa-arrow-left me-1"></i>Volver</a>
+    </div>
 </div>
 
 <div class="row g-3 mb-4">

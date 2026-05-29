@@ -12,17 +12,17 @@
 > Derivadas de `../CUMPLIMIENTO_DESCRIPCION.md`, ordenadas por valor/impacto. (Pendientes, sin empezar.)
 
 **Alto impacto / bajo esfuerzo:**
-- [ ] **Ordenamiento de tablas** con DataTables (ya está cargado) en Recursos/CP/Flashcards → cierra el punto 6 "ordenamiento".
-- [ ] **Gráficas estadísticas (Chart.js)**: curva de rating de Codeforces, minutos/semana, problemas por tag (debilidades), vocabulario por nivel CEFR → refuerza "ver avance real".
+- [x] **Ordenamiento de tablas** con DataTables (ya está cargado) en Recursos/CP/Flashcards → cierra el punto 6 "ordenamiento". ✅ (2026-05-28)
+- [x] **Gráficas estadísticas (Chart.js)**: curva de rating de Codeforces, minutos/semana, problemas por tag (debilidades), vocabulario por nivel CEFR → refuerza "ver avance real". ✅ (2026-05-28)
 
 **Roles / panel (cierra el punto 5):**
-- [ ] Rol **Invitado** de solo lectura (explorar plantillas públicas sin cuenta).
-- [ ] **Mini-panel de administrador** (gestión de usuarios + uso global).
+- [x] Rol **Invitado** de solo lectura (explorar plantillas públicas sin cuenta). ✅ (2026-05-28)
+- [x] **Mini-panel de administrador** (gestión de usuarios + uso global). ✅ (2026-05-28)
 
 **Opcionales de rúbrica (nivel intermedio):**
-- [ ] **Exportar PDF** de progreso/meta (p. ej. DOMPDF).
-- [ ] **Recuperación de contraseña** (token + expiración).
-- [ ] **Notificaciones / recordatorios** de repasos pendientes (Notification API o centro in-app).
+- [x] **Exportar PDF** de progreso/meta (vía `window.print()` + CSS `@media print`, sin dependencias). ✅ (2026-05-28)
+- [x] **Recuperación de contraseña** (token + expiración 1h, enlace mostrado en pantalla sin SMTP). ✅ (2026-05-28)
+- [x] **Notificaciones / recordatorios** de repasos pendientes (centro in-app + Notification API opcional). ✅ (2026-05-28)
 
 **Avanzado (opcional):**
 - [ ] **API REST propia** documentada (`/api/v1/...`) → habilita "publicación de servicios web" y una futura PWA.
@@ -394,6 +394,36 @@ Bloque 8 (escala) ── depende de que el núcleo (1–5) esté sólido
 ---
 
 ### Entradas reales
+
+### [2026-05-28] Cierre de `descripcion.md`: roles, panel admin, gráficas, DataTables, password reset, notificaciones, PDF
+- **Estado:** ✅ implementado (lint OK 16/16). Pendiente aplicar `migrations_v8.sql` (MySQL local estaba caído al verificar; el SQL canónico ya refleja el estado v8).
+- **Qué se hizo:** se implementaron las 7 mejoras del documento `CUMPLIMIENTO_DESCRIPCION.md` que se podían cubrir al 100%.
+  - **Ordenamiento con DataTables** en Flashcards (`views/flashcards/index.php`), Competitiva (`views/cp/index.php`), Recursos (`views/resources/index.php`) y Panel Admin (`views/admin/index.php`). Activación declarativa con `data-sv-sortable` (`assets/js/app.js`: `svInitDataTables()`). En recursos usa `data-sv-sort-only` para no chocar con su paginación server-side y se re-inicializa tras cada búsqueda AJAX.
+  - **Gráficas estadísticas (Chart.js)**: nueva página `?page=stats` con 6 gráficas — minutos por día (30d), tarjetas SM-2 (doughnut), CEFR (barras horizontales), CP por tag (radar), curva de rating de Codeforces (línea), solved por rating (histograma). Datos servidos por `StatsController::feed()` como JSON. (`controllers/StatsController.php`, `views/stats/index.php`).
+  - **Rol "Invitado"**: la página `?page=goals&action=browse` ahora se sirve sin sesión. El header detecta el modo invitado y muestra una nav simplificada con CTA de registro. Los botones "Clonar" se reemplazan por "Crear cuenta para clonar". (`index.php`, `controllers/GoalController::browse`, `views/goals/browse.php`, `views/partials/header.php`).
+  - **Mini-panel administrativo (`?page=admin`)**: listado paginado de usuarios con búsqueda, botón activar/desactivar, y 8 tarjetas de totales globales (usuarios, materias, recursos, flashcards, CP, metas, minutos). El login rechaza usuarios inactivos. (`controllers/AdminController.php`, `views/admin/index.php`, `models/User::paginate/globalStats/setActive/isActive/updatePassword`, `AuthController::login`).
+  - **Recuperación de contraseña** (`?page=forgot` y `?page=reset`): token aleatorio de 32 bytes hex, 1h de expiración, uno activo por usuario, marcado `used` tras el cambio. Como no hay SMTP en XAMPP, el enlace se muestra en pantalla con una nota "demo". Política de mínimo 8 caracteres y rate limit de 5 solicitudes/10 min por sesión. (`models/PasswordReset.php`, `controllers/AuthController::forgot/reset`, `views/auth/forgot.php`, `views/auth/reset.php`, link en `views/auth/login.php`).
+  - **Centro de notificaciones**: tabla `notifications`, badge rojo en el navbar con dropdown auto-refresco (60s), página `?page=notifications` con marcar leídas / eliminar / "marcar todas". Generador `NotificationController::generate()` (idempotente por día) crea avisos para: repasos pendientes de flashcards y de CP, metas atrasadas, meta diaria de minutos sin cubrir y racha en riesgo. Soporte opcional para Notification API del navegador.
+  - **Exportar PDF**: botón "Exportar PDF" en `views/report/index.php` y `views/goals/show.php` que dispara `window.print()`. Estilos `@media print` en `app.css` ocultan navbar/sidebar/widgets y dejan una hoja limpia para guardar como PDF — solución sin Composer/DOMPDF.
+- **Base de datos:** **ejecutar `migrations_v8.sql`** (ALTER `users.active` + `password_resets` + `notifications`). El esquema canónico `ENTREGA/studyvault_completo.sql` ya está al día (v8).
+- **Archivos nuevos:** `migrations_v8.sql`, `models/{PasswordReset,Notification}.php`, `controllers/{AdminController,NotificationController,StatsController}.php`, `views/admin/index.php`, `views/auth/{forgot,reset}.php`, `views/stats/index.php`, `views/notifications/index.php`.
+- **Archivos modificados:** `index.php` (10 rutas nuevas + rama pública para `goals.browse`), `config/database.php` (sin cambios; `config/init.php` ya tenía `rate_limit`), `controllers/AuthController.php` (active=0 → mensaje, forgot/reset), `controllers/GoalController.php` (browse sin requireLogin), `models/User.php` (active + admin/reset helpers), `views/partials/header.php` (badge notif, nav Estadísticas/Admin/Notificaciones, modo invitado), `views/auth/login.php` (link "Olvidé contraseña" + CTA invitado), `views/goals/browse.php` (modo invitado), `views/{report,goals/show}.php` (botón "Exportar PDF"), `views/{flashcards,cp,resources,admin}/index.php` (DataTables), `assets/js/app.js` (feed de notificaciones + `svInitDataTables`), `assets/css/app.css` (notif, DataTables, `@media print`), `ENTREGA/studyvault_completo.sql` (refleja v8).
+- **Decisiones clave:**
+  - PDF: se eligió `window.print()` + CSS de impresión (cero dependencias) en vez de DOMPDF, que exigiría Composer y vendor/. Cumple el opcional "exportar PDF" sin tocar la infraestructura del proyecto.
+  - Notificaciones: generación on-demand y por día (`createOncePerDay`) para no inundar al usuario; AJAX de polling cada 60s; Notification API opt-in (LocalStorage). No requiere worker.
+  - Roles/Invitado: la lista pública sólo expone metadatos (título/desc/recursos). El clone permanece en POST autenticado.
+  - DataTables: declarativo con `data-sv-sortable`; reusa la versión ya cargada en el header (sin nuevas CDN). En Recursos, sort-only para coexistir con la paginación server-side.
+- **Cómo probar:**
+  1. Aplica la migración: `mysql -uroot studyvault < migrations_v8.sql` (o reimporta el SQL canónico).
+  2. Login con admin → ver "Panel admin", desactivar a un usuario → intentar iniciar sesión con él → mensaje rojo.
+  3. `?page=forgot` → ingresar correo válido → seguir el enlace mostrado → cambiar contraseña → login.
+  4. `?page=stats` → 6 gráficas (algunas vacías si no hay datos).
+  5. `?page=notifications` → ver avisos generados; badge en navbar al volver a otra página.
+  6. `?page=goals&action=browse` en navegador privado → modo invitado; los botones de clonar redirigen al registro.
+  7. `?page=report` → "Exportar PDF" → la vista de impresión solo muestra el contenido principal.
+  8. Flashcards/CP/Recursos → encabezados ordenables (flechas).
+- **Cómo revertir:** borrar las vistas/controllers/modelos nuevos; revertir `index.php`, `header.php`, `app.js`, `app.css` y los botones añadidos; `DROP TABLE notifications, password_resets; ALTER TABLE users DROP COLUMN active;`.
+- **Pendiente / no cubierto:** API REST propia documentada y video demostrativo (avanzado / opcional, sin valor inmediato para el propósito del proyecto).
 
 ### [2026-05-27] Auditoría Wave 3 + esquema canónico limpio
 - **Estado:** ✅ verificado (suite 53/53 contra BD recién creada; lint; smoke sin fatales).

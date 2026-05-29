@@ -79,6 +79,17 @@
                                 <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">
                                     <i class="fa-solid fa-right-to-bracket me-1"></i>Iniciar sesión
                                 </button>
+                                <div class="text-center mt-3">
+                                    <a href="<?= BASE_URL ?>?page=forgot" class="small text-muted">
+                                        <i class="fa-solid fa-key me-1"></i>¿Olvidaste tu contraseña?
+                                    </a>
+                                </div>
+                                <hr class="my-3">
+                                <div class="text-center">
+                                    <a href="<?= BASE_URL ?>?page=goals&action=browse" class="small text-muted text-decoration-none">
+                                        <i class="fa-solid fa-globe me-1"></i>Explorar plantillas públicas como invitado
+                                    </a>
+                                </div>
                             </form>
                         </div>
 

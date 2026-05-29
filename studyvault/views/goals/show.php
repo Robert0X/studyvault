@@ -8,7 +8,12 @@ require __DIR__ . '/../partials/header.php';
         <h2 class="mb-0"><i class="fa-solid fa-bullseye me-2"></i><?= htmlspecialchars($goal['title']) ?></h2>
         <p class="text-muted mb-0"><?= htmlspecialchars($goal['description'] ?: '') ?></p>
     </div>
-    <a href="<?= BASE_URL ?>?page=goals" class="btn btn-outline-secondary"><i class="fa-solid fa-arrow-left me-1"></i>Volver</a>
+    <div class="d-flex gap-2">
+        <button class="btn btn-outline-primary" onclick="window.print()" title="Exportar a PDF (imprimir)">
+            <i class="fa-solid fa-file-pdf me-1"></i>Exportar PDF
+        </button>
+        <a href="<?= BASE_URL ?>?page=goals" class="btn btn-outline-secondary"><i class="fa-solid fa-arrow-left me-1"></i>Volver</a>
+    </div>
 </div>
 
 <div class="row g-4">

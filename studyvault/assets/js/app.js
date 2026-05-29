@@ -146,13 +146,117 @@ function playAudio(url) {
 }
 
 /* ============================
-   Tooltips + init
+   Centro de notificaciones (navbar)
    ============================ */
-document.addEventListener('DOMContentLoaded', function () {
+function svRefreshNotifications() {
+    const list  = document.getElementById('notifList');
+    const badge = document.getElementById('notifBadge');
+    if (!list) return; // no estás logueado
+    const emptyHtml = '<div class="text-center text-muted small py-3">Sin notificaciones</div>';
+    const errHtml   = '<div class="text-center text-muted small py-3"><i class="fa-solid fa-triangle-exclamation me-1"></i>No se pudo cargar</div>';
+    fetch(BASE_URL + '?page=notifications&action=feed', { headers: { 'Accept': 'application/json' } })
+        .then(r => r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)))
+        .then(d => {
+            if (!d.success) { list.innerHTML = errHtml; return; }
+            // Badge
+            if (d.unread > 0) {
+                badge.textContent = d.unread > 99 ? '99+' : d.unread;
+                badge.classList.remove('d-none');
+            } else {
+                badge.classList.add('d-none');
+            }
+            // Avisos del navegador (si el usuario activó el permiso)
+            if (localStorage.getItem('sv-notif-enabled') === '1' && 'Notification' in window && Notification.permission === 'granted') {
+                const shown = JSON.parse(localStorage.getItem('sv-notif-shown') || '[]');
+                const newShown = shown.slice(-50);
+                d.items.forEach(it => {
+                    if (!it.read && !shown.includes(it.id)) {
+                        try { new Notification('StudyVault', { body: it.title }); } catch (e) {}
+                        newShown.push(it.id);
+                    }
+                });
+                localStorage.setItem('sv-notif-shown', JSON.stringify(newShown.slice(-50)));
+            }
+            // Lista en el dropdown
+            if (!d.items.length) {
+                list.innerHTML = emptyHtml;
+                return;
+            }
+            list.innerHTML = d.items.map(it => {
+                const link = it.link ? esc(it.link) : '#';
+                const dot  = it.read ? '' : '<span class="sv-notif-dot"></span>';
+                return `<a href="${link}" class="dropdown-item sv-notif-item d-flex gap-2 py-2 ${it.read ? '' : 'sv-notif-unread'}">
+                    <i class="fa-solid ${esc(it.icon || 'fa-bell')} text-primary mt-1"></i>
+                    <div class="flex-grow-1 min-w-0">
+                        <div class="small fw-semibold text-truncate">${esc(it.title)}</div>
+                        <div class="small text-muted text-truncate">${esc(it.body || '')}</div>
+                    </div>${dot}
+                </a>`;
+            }).join('');
+        })
+        .catch(() => { list.innerHTML = errHtml; });
+}
+
+/* ============================
+   DataTables: aplica ordenamiento a cualquier <table data-sv-sortable>
+   Mantiene compat con búsquedas/paginación server-side: si la tabla
+   tiene data-sv-sort-only, se desactiva paginación/buscador propios.
+   ============================ */
+function svInitDataTables() {
+    if (typeof jQuery === 'undefined' || !jQuery.fn.DataTable) return;
+    jQuery('table[data-sv-sortable]').each(function () {
+        const $t = jQuery(this);
+        // Si ya hay un DataTable montado (p. ej. tras un re-render AJAX), destrúyelo primero.
+        if (jQuery.fn.DataTable.isDataTable(this)) {
+            $t.DataTable().destroy();
+        }
+        const sortOnly = $t.is('[data-sv-sort-only]');
+        const opts = {
+            paging:    !sortOnly,
+            searching: !sortOnly,
+            info:      !sortOnly,
+            order:     [],
+            language: {
+                emptyTable:     'Sin datos',
+                zeroRecords:    'Sin coincidencias',
+                lengthMenu:     'Mostrar _MENU_',
+                search:         'Buscar:',
+                info:           '_START_–_END_ de _TOTAL_',
+                infoEmpty:      '0 registros',
+                paginate: { first: '«', last: '»', next: '›', previous: '‹' },
+            },
+        };
+        // Permite excluir columnas por data-sv-no-sort en <th>
+        opts.columnDefs = [{ targets: '[data-sv-no-sort]', orderable: false, searchable: false }];
+        $t.DataTable(opts);
+    });
+}
+
+/* ============================
+   Tooltips + init
+   Se ejecuta tras DOMContentLoaded o inmediatamente si la página ya cargó
+   (evita el problema de registrar el listener cuando el evento ya pasó).
+   ============================ */
+function svBootstrap() {
     updateDarkIcon();
     document.querySelectorAll('[title]').forEach(el => {
         if (el.closest('.sv-sidebar') || el.closest('table')) {
             new bootstrap.Tooltip(el, { trigger: 'hover', placement: 'top' });
         }
     });
-});
+    // Notificaciones (sólo si el usuario está logueado: existe el badge)
+    if (document.getElementById('notifBadge')) {
+        svRefreshNotifications();
+        setInterval(svRefreshNotifications, 60000);
+        // Refrescar también cuando el usuario abre el dropdown (no esperar al poll).
+        const btn = document.getElementById('notifBtn');
+        if (btn) btn.addEventListener('click', svRefreshNotifications);
+    }
+    // DataTables sobre tablas marcadas
+    svInitDataTables();
+}
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', svBootstrap);
+} else {
+    svBootstrap();
+}
