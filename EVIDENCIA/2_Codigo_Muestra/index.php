@@ -1,0 +1,141 @@
+<?php
+require_once __DIR__ . '/config/init.php';
+
+$page   = $_GET['page'] ?? 'login';
+$method = $_SERVER['REQUEST_METHOD'];
+
+// POST descartado por exceder post_max_size (p. ej. archivo demasiado grande):
+// PHP vacía $_POST, así que damos un mensaje claro en vez de "CSRF inválido".
+if ($method === 'POST' && empty($_POST) && (int) ($_SERVER['CONTENT_LENGTH'] ?? 0) > 0) {
+    http_response_code(413);
+    header('Content-Type: application/json');
+    echo json_encode(['success' => false, 'message' => 'El archivo es demasiado grande para el servidor. Sube uno menor (máx. ' . (defined('MAX_FILE_SIZE_MB') ? MAX_FILE_SIZE_MB : 50) . ' MB).']);
+    exit;
+}
+
+// Validar CSRF en TODA petición POST (centralizado)
+if ($method === 'POST') {
+    csrf_verify();
+}
+
+// Páginas públicas (auth) y vistas que admiten invitado
+$publicPages = ['login', 'register', 'logout', 'forgot', 'reset'];
+
+if (in_array($page, $publicPages, true)) {
+    $auth = new AuthController();
+    match ($page) {
+        'login'    => $auth->login(),
+        'register' => $auth->register(),
+        'logout'   => $auth->logout(),
+        'forgot'   => $auth->forgot(),
+        'reset'    => $auth->reset(),
+    };
+    exit;
+}
+
+// Rol "Invitado": el listado público de plantillas es accesible sin sesión.
+// Sólo aplica a GET (las acciones que mutan datos exigen sesión).
+if ($page === 'goals' && $method === 'GET' && ($_GET['action'] ?? '') === 'browse') {
+    (new GoalController())->browse();
+    exit;
+}
+
+// Todas las demás requieren sesión
+requireLogin();
+
+$subjects      = new SubjectController();
+$resources     = new ResourceController();
+$flashcards    = new FlashcardController();
+$cp            = new CpController();
+$units         = new UnitController();
+$goals         = new GoalController();
+$timer         = new TimerController();
+$report        = new ReportController();
+$dashboard     = new DashboardController();
+$stats         = new StatsController();
+$notifications = new NotificationController();
+$admin         = new AdminController();
+
+$action = $_GET['action'] ?? null;
+$post   = $_POST['_action'] ?? null;
+
+match (true) {
+    $page === 'dashboard' => $dashboard->index(),
+
+    $page === 'subjects' && $method === 'GET'                       => $subjects->index(),
+    $page === 'subjects' && $method === 'POST' && $post === 'store'   => $subjects->store(),
+    $page === 'subjects' && $method === 'POST' && $post === 'update'  => $subjects->update(),
+    $page === 'subjects' && $method === 'POST' && $post === 'destroy' => $subjects->destroy(),
+
+    $page === 'resources' && $method === 'GET' && $action === null      => $resources->index(),
+    $page === 'resources' && $method === 'GET' && $action === 'create'  => $resources->create(),
+    $page === 'resources' && $method === 'GET' && $action === 'edit'    => $resources->edit(),
+    $page === 'resources' && $method === 'POST' && $post === 'store'   => $resources->store(),
+    $page === 'resources' && $method === 'POST' && $post === 'update'  => $resources->update(),
+    $page === 'resources' && $method === 'POST' && $post === 'destroy' => $resources->destroy(),
+
+    $page === 'flashcards' && $method === 'GET' && $action === 'study'  => $flashcards->study(),
+    $page === 'flashcards' && $method === 'GET' && $action === 'export' => $flashcards->exportCsv(),
+    $page === 'flashcards' && $method === 'GET'                        => $flashcards->index(),
+    $page === 'flashcards' && $method === 'POST' && $post === 'store'      => $flashcards->store(),
+    $page === 'flashcards' && $method === 'POST' && $post === 'store_dict' => $flashcards->storeFromDictionary(),
+    $page === 'flashcards' && $method === 'POST' && $post === 'import'     => $flashcards->importCsv(),
+    $page === 'flashcards' && $method === 'POST' && $post === 'review'     => $flashcards->review(),
+    $page === 'flashcards' && $method === 'POST' && $post === 'destroy'    => $flashcards->destroy(),
+
+    $page === 'cp' && $method === 'GET' && $action === 'review'    => $cp->review(),
+    $page === 'cp' && $method === 'GET' && $action === 'templates' => $cp->templates(),
+    $page === 'cp' && $method === 'GET'                            => $cp->index(),
+    $page === 'cp' && $method === 'POST' && $post === 'save_handle'      => $cp->saveHandle(),
+    $page === 'cp' && $method === 'POST' && $post === 'sync'             => $cp->sync(),
+    $page === 'cp' && $method === 'POST' && $post === 'store'            => $cp->store(),
+    $page === 'cp' && $method === 'POST' && $post === 'status'           => $cp->setStatus(),
+    $page === 'cp' && $method === 'POST' && $post === 'destroy'          => $cp->destroy(),
+    $page === 'cp' && $method === 'POST' && $post === 'schedule_review'  => $cp->scheduleReview(),
+    $page === 'cp' && $method === 'POST' && $post === 'review_submit'    => $cp->reviewSubmit(),
+    $page === 'cp' && $method === 'POST' && $post === 'sync_problemset'  => $cp->syncProblemset(),
+    $page === 'cp' && $method === 'POST' && $post === 'template_store'   => $cp->storeTemplate(),
+    $page === 'cp' && $method === 'POST' && $post === 'template_destroy' => $cp->destroyTemplate(),
+
+    $page === 'units' && $method === 'GET'                       => $units->index(),
+    $page === 'units' && $method === 'POST' && $post === 'store'    => $units->store(),
+    $page === 'units' && $method === 'POST' && $post === 'bulk'     => $units->bulk(),
+    $page === 'units' && $method === 'POST' && $post === 'status'   => $units->setStatus(),
+    $page === 'units' && $method === 'POST' && $post === 'destroy'  => $units->destroy(),
+
+    $page === 'goals' && $method === 'GET' && $action === 'show'   => $goals->show(),
+    $page === 'goals' && $method === 'GET'                         => $goals->index(),
+    $page === 'goals' && $method === 'POST' && $post === 'store'    => $goals->store(),
+    $page === 'goals' && $method === 'POST' && $post === 'update'   => $goals->update(),
+    $page === 'goals' && $method === 'POST' && $post === 'destroy'  => $goals->destroy(),
+    $page === 'goals' && $method === 'POST' && $post === 'attach'   => $goals->attach(),
+    $page === 'goals' && $method === 'POST' && $post === 'detach'   => $goals->detach(),
+    $page === 'goals' && $method === 'POST' && $post === 'toggle_public' => $goals->togglePublic(),
+    $page === 'goals' && $method === 'POST' && $post === 'clone'         => $goals->cloneGoal(),
+
+    $page === 'timer' && $method === 'GET'                      => $timer->index(),
+    $page === 'timer' && $method === 'POST' && $post === 'log'       => $timer->log(),
+    $page === 'timer' && $method === 'POST' && $post === 'set_goal'  => $timer->setDailyGoal(),
+
+    $page === 'report' && $method === 'GET'                     => $report->index(),
+
+    // Estadísticas con Chart.js
+    $page === 'stats' && $method === 'GET' && $action === 'feed' => $stats->feed(),
+    $page === 'stats' && $method === 'GET'                       => $stats->index(),
+
+    // Notificaciones
+    $page === 'notifications' && $method === 'GET' && $action === 'feed' => $notifications->feed(),
+    $page === 'notifications' && $method === 'GET'                       => $notifications->index(),
+    $page === 'notifications' && $method === 'POST' && $post === 'mark_read'     => $notifications->markRead(),
+    $page === 'notifications' && $method === 'POST' && $post === 'mark_all'      => $notifications->markAllRead(),
+    $page === 'notifications' && $method === 'POST' && $post === 'destroy'       => $notifications->destroy(),
+
+    // Panel administrativo
+    $page === 'admin' && $method === 'GET'                                => $admin->index(),
+    $page === 'admin' && $method === 'POST' && $post === 'toggle_active'  => $admin->toggleActive(),
+
+    default => (function () {
+        http_response_code(404);
+        echo '<h1>404 - Página no encontrada</h1>';
+    })(),
+};
